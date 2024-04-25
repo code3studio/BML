@@ -25,10 +25,10 @@ async fn main() -> std::io::Result<()> {
         App::new().wrap(Logger::default())
         // .app_data(db_data.clone())
         .service(get_signature).service(generate)
-    }).bind(("0.0.0.0",5001))?;
+    }).bind(("0.0.0.0",5006))?;
 
     // Log a message indicating that the server is running
-    println!("Server is running on port 5001");
+    println!("Server is running on port 5006");
 
     server.run().await
     // println!("Hello, world!");
