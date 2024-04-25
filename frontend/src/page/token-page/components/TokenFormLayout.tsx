@@ -143,11 +143,7 @@ function ColorlibStepIcon(props: StepIconProps) {
   );
 }
 
-const steps = [
-  "Select campaign settings",
-  "Create an ad group",
-  "Create an ad",
-];
+const steps = ["Basic", "Advance", "Review"];
 
 export default function CustomizedSteppers() {
   return (

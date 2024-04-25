@@ -38,10 +38,12 @@ const InitForm = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Grid item md={3}>
-              <Typography textAlign={"right"}>Name</Typography>
+            <Grid item md={3} sm={12} xs={12}>
+              <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
+                Name
+              </Typography>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} sm={12} xs={12}>
               <TextField
                 label="name"
                 error={!!errors.name}
@@ -64,10 +66,12 @@ const InitForm = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Grid item md={3}>
-              <Typography textAlign={"right"}>$Symbol</Typography>
+            <Grid item md={3} sm={12} xs={12}>
+              <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
+                $Symbol
+              </Typography>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} sm={12} xs={12}>
               <TextField
                 label="$symbol"
                 error={!!errors.symbol}
@@ -90,10 +94,12 @@ const InitForm = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Grid item md={3}>
-              <Typography textAlign={"right"}>Decimal</Typography>
+            <Grid item md={3} sm={12} xs={12}>
+              <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
+                Decimal
+              </Typography>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} sm={12} xs={12}>
               <TextField
                 label="decimal"
                 error={!!errors.decimal}
@@ -119,10 +125,12 @@ const InitForm = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Grid item md={3}>
-              <Typography textAlign={"right"}>Supply</Typography>
+            <Grid item md={3} sm={12} xs={12}>
+              <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
+                Supply
+              </Typography>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} sm={12} xs={12}>
               <TextField
                 label="supply"
                 error={!!errors.supply}
@@ -145,10 +153,12 @@ const InitForm = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Grid item md={3}>
-              <Typography textAlign={"right"}>Max Buy</Typography>
+            <Grid item md={3} sm={12} xs={12}>
+              <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
+                Max Buy
+              </Typography>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} sm={12} xs={12}>
               <TextField
                 label="max buy"
                 error={!!errors.maxBuy}
@@ -171,10 +181,12 @@ const InitForm = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Grid item md={3}>
-              <Typography textAlign={"right"}>Initial LP</Typography>
+            <Grid item md={3} sm={12} xs={12}>
+              <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
+                Initial LP
+              </Typography>
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} sm={12} xs={12}>
               <TextField
                 label="Initial LP"
                 error={!!errors.initialLP}
