@@ -4,7 +4,6 @@ import Stack from "@mui/material/Stack";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import Check from "@mui/icons-material/Check";
 import SettingsIcon from "@mui/icons-material/Settings";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import VideoLabelIcon from "@mui/icons-material/VideoLabel";
@@ -13,6 +12,7 @@ import StepConnector, {
 } from "@mui/material/StepConnector";
 import { StepIconProps } from "@mui/material/StepIcon";
 import InitForm from "./InitForm";
+import { Button, Grid } from "@mui/material";
 
 // const QontoConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -149,10 +149,6 @@ const steps = [
   "Create an ad",
 ];
 
-type Props = {
-  children: React.ReactNode;
-};
-
 export default function CustomizedSteppers() {
   return (
     <>
@@ -181,6 +177,9 @@ export default function CustomizedSteppers() {
       <Stack spacing={4}>
         <form name="tokenForm" noValidate>
           <InitForm />
+          <Grid container justifyContent={"center"} className="mt-6">
+            <Button variant="contained">Next</Button>
+          </Grid>
         </form>
       </Stack>
     </>

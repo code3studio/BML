@@ -1,9 +1,7 @@
 import { Grid, Paper, Typography, styled } from "@mui/material";
-import React from "react";
 import CustomizedSteppers from "./components/TokenFormLayout";
 
-type Props = {};
-const FormRoot = styled(Paper)(({ theme }) => ({
+const FormRoot = styled(Paper)(() => ({
   padding: 30,
   borderRadius: 10,
   marginTop: 50,
@@ -11,7 +9,7 @@ const FormRoot = styled(Paper)(({ theme }) => ({
   // color: "white",
 }));
 
-const TokenPage = (props: Props) => {
+const TokenPage = () => {
   return (
     <>
       <Grid container justifyContent={"center"}>

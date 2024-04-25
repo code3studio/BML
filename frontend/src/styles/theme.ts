@@ -28,10 +28,10 @@ const theme: ThemeOptions = {
       700: "#484B50",
       800: "#303239",
     },
-    text: {
-      secondary: "#FFAF59",
-      disabled: "#6A6F7A",
-    },
+    // text: {
+    //   secondary: "#FFAF59",
+    //   disabled: "#6A6F7A",
+    // },
     primary: {
       main: "#5754E1",
     },

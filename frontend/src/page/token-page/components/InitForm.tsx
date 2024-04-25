@@ -1,10 +1,7 @@
-import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Grid, TextField, Typography } from "@mui/material";
-
-type Props = {};
 
 const defaultValues = {
   name: "",
@@ -15,16 +12,16 @@ const defaultValues = {
   initialLP: "",
 };
 const schema = z.object({
-  name: z.string().nonempty("You must enter your name"),
+  name: z.string().nonempty("You must enter token name"),
 });
 
-const InitForm = (props: Props) => {
-  const { control, formState, handleSubmit, setError } = useForm({
+const InitForm = () => {
+  const { control, formState } = useForm({
     mode: "onChange",
     defaultValues,
     resolver: zodResolver(schema),
   });
-  const { isValid, dirtyFields, errors } = formState;
+  const { errors } = formState;
 
   return (
     <>

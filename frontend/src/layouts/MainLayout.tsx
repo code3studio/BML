@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 type Props = {};
 
-const MainLayout = (props: Props) => {
+const MainLayout = (_props: Props) => {
   return (
     <Container>
       <ResponsiveAppBar />
