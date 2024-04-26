@@ -12,7 +12,6 @@ const AppWrapper = () => {
   const toggleThemeMode = () => {
     setThemeMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
-  console.log("env==", import.meta.env.VITE_API_URL);
 
   return (
     // <React.StrictMode>

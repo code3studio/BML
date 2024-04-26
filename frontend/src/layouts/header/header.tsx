@@ -14,6 +14,7 @@ import { ThemeContext, ThemeContextType } from "../../context/themeContext";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import ModeNightIcon from "@mui/icons-material/ModeNight";
 import { useTheme } from "@mui/material";
+import { useWeb3ModalTheme } from "@web3modal/wagmi/react";
 const pages = ["Deploy", "Guide", "Legal/disc"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -41,8 +42,10 @@ function ResponsiveAppBar() {
     throw new Error("useThemeMode must be used within a ThemeProvider");
   }
 
-  const { toggleThemeMode } = context;
+  const { toggleThemeMode, themeMode } = context;
   const theme = useTheme();
+
+  const { setThemeMode } = useWeb3ModalTheme();
 
   return (
     <AppBar position="fixed">
@@ -57,9 +60,9 @@ function ResponsiveAppBar() {
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
+              fontFamily: "CuteDino",
+              // fontWeight: 700,
+              letterSpacing: ".15rem",
               color: "inherit",
               textDecoration: "none",
             }}
@@ -113,11 +116,12 @@ function ResponsiveAppBar() {
               mr: 2,
               display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "monospace",
+              // fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
+              fontFamily: "CuteDino",
             }}
           >
             TOKENATOR
@@ -164,13 +168,23 @@ function ResponsiveAppBar() {
               ))}
             </Menu>
           </Box>
-          <IconButton className="mx-6" onClick={toggleThemeMode} sx={{ p: 0 }}>
+          <IconButton
+            onClick={() => {
+              toggleThemeMode();
+              setThemeMode(!themeMode as any);
+            }}
+            sx={{ p: 0, mx: 6 }}
+          >
             {theme.palette.mode === "dark" ? (
               <LightModeIcon />
             ) : (
-              <ModeNightIcon />
+              <ModeNightIcon sx={{ color: "azure" }} />
             )}
           </IconButton>
+          {/* <Button variant="contained" color="secondary" onClick={() => open()}>
+            Connect Wallet{" "}
+          </Button> */}
+          <w3m-button />
         </Toolbar>
       </Container>
     </AppBar>

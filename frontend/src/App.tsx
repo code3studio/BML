@@ -4,13 +4,14 @@ import { RouterProvider } from "react-router-dom";
 import { routes } from "./routers/routers";
 import { css, useTheme } from "@mui/material";
 import { Global } from "@emotion/react";
+import { Web3ModalProvider } from "./context/Web3ModalProvider";
 
 function App() {
   const theme = useTheme();
 
   const generateGlobalStyles = (props: any) => css`
     body {
-      background-color: ${props || "#f0f0f0"};
+      background-color: ${props || "#fbfff1"};
     }
   `;
   return (
@@ -22,9 +23,11 @@ function App() {
             : theme.palette.grey[100]
         )}
       />
-      <Suspense fallback={<p>loading...</p>}>
-        <RouterProvider router={routes} />
-      </Suspense>
+      <Web3ModalProvider>
+        <Suspense fallback={<p>loading...</p>}>
+          <RouterProvider router={routes} />
+        </Suspense>
+      </Web3ModalProvider>
     </>
   );
 }

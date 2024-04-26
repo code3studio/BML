@@ -13,6 +13,12 @@ import StepConnector, {
 import { StepIconProps } from "@mui/material/StepIcon";
 import InitForm from "./InitForm";
 import { Box, Button, StepButton, Typography } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
+import { symbol, z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { GenerateParamType } from "../../../types/generate";
+import { useAccount } from "wagmi";
+import { generateContract } from "../../../services/api";
 
 // const QontoConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -150,6 +156,7 @@ export default function CustomizedSteppers() {
   const [completed, setCompleted] = React.useState<{
     [k: number]: boolean;
   }>({});
+  const { address } = useAccount();
 
   const totalSteps = () => {
     return steps.length;
@@ -196,6 +203,40 @@ export default function CustomizedSteppers() {
     setActiveStep(0);
     setCompleted({});
   };
+  const defaultValues: Partial<GenerateParamType> = {
+    name: "",
+    symbol: "",
+    decimal: 18,
+    supply: 1000,
+    maxBuy: 1000,
+    initialLP: 1000,
+  };
+  const schema = z.object({
+    name: z.string().nonempty("You must enter token name"),
+    symbol: z.string(),
+    decimal: z.number(),
+    supply: z.number(),
+    maxBuy: z.number(),
+    initialLP: z.number(),
+  });
+  const methods = useForm({
+    mode: "onChange",
+    defaultValues,
+    resolver: zodResolver(schema),
+  });
+  const { handleSubmit } = methods;
+
+  const onSubmit = async (data: Partial<GenerateParamType>) => {
+    console.log("data==", data, address);
+    data.owner = address;
+    try {
+      const res = await generateContract(data as GenerateParamType);
+      console.log("res==", res.data);
+    } catch (error) {
+      console.log("err===", error);
+    }
+  };
+  // const { errors } = formState;
   return (
     <>
       <Stack sx={{ width: "100%" }} spacing={4}>
@@ -225,62 +266,71 @@ export default function CustomizedSteppers() {
         </Stepper>
       </Stack>
       <Stack spacing={4}>
-        <form name="tokenForm" noValidate>
+        <FormProvider {...methods}>
           <InitForm />
           {/* <Grid container justifyContent={"center"} className="mt-6">
             <Button variant="contained">Next</Button>
           </Grid> */}
-        </form>
-      </Stack>
-      <div>
-        {allStepsCompleted() ? (
-          <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-              <Box sx={{ flex: "1 1 auto" }} />
-              <Button onClick={handleReset}>Reset</Button>
-            </Box>
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            {/* <Typography sx={{ mt: 2, mb: 1, py: 1 }}>
+          <div>
+            {allStepsCompleted() ? (
+              <React.Fragment>
+                <Typography sx={{ mt: 2, mb: 1 }}>
+                  All steps completed - you&apos;re finished
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                  <Box sx={{ flex: "1 1 auto" }} />
+                  <Button onClick={handleReset}>Reset</Button>
+                </Box>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {/* <Typography sx={{ mt: 2, mb: 1, py: 1 }}>
               Step {activeStep + 1}
             </Typography> */}
-            <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-              <Button
-                variant="contained"
-                color="inherit"
-                disabled={activeStep === 0}
-                onClick={handleBack}
-                sx={{ mr: 1 }}
-              >
-                Back
-              </Button>
-              <Box sx={{ flex: "1 1 auto" }} />
-              <Button variant="contained" onClick={handleNext} sx={{ mr: 1 }}>
-                Next
-              </Button>
-              {activeStep !== steps.length &&
-                (completed[activeStep] ? (
-                  <Typography
-                    variant="caption"
-                    sx={{ display: "inline-block" }}
+                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="inherit"
+                    disabled={activeStep === 0}
+                    onClick={handleBack}
+                    sx={{ mr: 1 }}
                   >
-                    Step {activeStep + 1} already completed
-                  </Typography>
-                ) : (
-                  <Button variant="contained" onClick={handleComplete}>
-                    {completedSteps() === totalSteps() - 1
-                      ? "Launch"
-                      : "Complete Step"}
+                    Back
                   </Button>
-                ))}
-            </Box>
-          </React.Fragment>
-        )}
-      </div>
+                  <Box sx={{ flex: "1 1 auto" }} />
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    sx={{ mr: 1 }}
+                  >
+                    Next
+                  </Button>
+                  {activeStep !== steps.length &&
+                    (completed[activeStep] ? (
+                      <Typography
+                        variant="caption"
+                        sx={{ display: "inline-block" }}
+                      >
+                        Step {activeStep + 1} already completed
+                      </Typography>
+                    ) : completedSteps() === totalSteps() - 1 ? (
+                      <Button
+                        variant="contained"
+                        onClick={handleSubmit(onSubmit)}
+                      >
+                        Launch
+                      </Button>
+                    ) : (
+                      <Button variant="contained" onClick={handleComplete}>
+                        Complete Step
+                      </Button>
+                    ))}
+                </Box>
+              </React.Fragment>
+            )}
+          </div>
+        </FormProvider>
+      </Stack>
     </>
   );
 }

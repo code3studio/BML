@@ -1,26 +1,9 @@
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Controller, useFormContext } from "react-hook-form";
 import { Grid, TextField, Typography } from "@mui/material";
-
-const defaultValues = {
-  name: "",
-  symbol: "",
-  decimal: "",
-  supply: "",
-  maxBuy: "",
-  initialLP: "",
-};
-const schema = z.object({
-  name: z.string().nonempty("You must enter token name"),
-});
+import { GenerateParamType } from "../../../types/generate";
 
 const InitForm = () => {
-  const { control, formState } = useForm({
-    mode: "onChange",
-    defaultValues,
-    resolver: zodResolver(schema),
-  });
+  const { control, formState } = useFormContext<Partial<GenerateParamType>>();
   const { errors } = formState;
 
   return (
@@ -101,6 +84,7 @@ const InitForm = () => {
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
               <TextField
+                type="number"
                 label="decimal"
                 error={!!errors.decimal}
                 helperText={errors?.decimal?.message}
@@ -132,6 +116,7 @@ const InitForm = () => {
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
               <TextField
+                type="number"
                 label="supply"
                 error={!!errors.supply}
                 helperText={errors?.supply?.message}
@@ -160,6 +145,7 @@ const InitForm = () => {
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
               <TextField
+                type="number"
                 label="max buy"
                 error={!!errors.maxBuy}
                 helperText={errors?.maxBuy?.message}
@@ -188,6 +174,7 @@ const InitForm = () => {
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
               <TextField
+                type="number"
                 label="Initial LP"
                 error={!!errors.initialLP}
                 helperText={errors?.initialLP?.message}

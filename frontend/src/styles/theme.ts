@@ -15,10 +15,10 @@ const theme: ThemeOptions = {
   palette: {
     background: {
       paper: "#fff",
-      default: "#F9FAFE",
+      default: "#fbfff1",
     },
     grey: {
-      50: "#F9FAFE",
+      50: "#fbfff1",
       100: "#EDF0F7",
       200: "#DFE4EC",
       300: "#CCD2DC",
@@ -33,15 +33,21 @@ const theme: ThemeOptions = {
     //   disabled: "#6A6F7A",
     // },
     primary: {
-      main: "#5754E1",
+      main: "#090c9b",
+      light: "#3066be",
+      contrastText: "#fbfff1",
     },
     secondary: {
       main: "#38D7A8",
       contrastText: "rgba(249,249,249,0.87)",
     },
+    // text: {
+    //   primary: "#3c3744",
+    //   secondary: "#fbfff1",
+    // },
   },
   typography: {
-    fontFamily: "Satoshi-Bold",
+    // fontFamily: "Satoshi-Bold",
     h1: {
       fontSize: "96px",
       fontWeight: 900,

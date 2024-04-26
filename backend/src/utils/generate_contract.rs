@@ -1,9 +1,14 @@
 use std::fmt::Error;
-use std::fs::File;
-use std::io::prelude::*;
+use std::fs::{self, File};
+use std::io::{self, prelude::*};
 use std::process::Command;
 
-pub fn generate_contract() -> std::io::Result<()> {
+use actix_web::web::Json;
+use regex::Regex;
+
+use crate::model::signature_model::GenerateRequest;
+
+pub fn generate_contract(data: Json<GenerateRequest>) -> std::io::Result<String> {
     // Create a new file named "example.sol"
     println!("hi");
     let mut file = File::create("./src/smart_contract/contracts/MyExample.sol")?;
@@ -11,101 +16,136 @@ pub fn generate_contract() -> std::io::Result<()> {
     // Write some content to the file
     file.write_all(
         b"
-    //SPDX-License-Identifier: UNLICENSED
-    \n
-    // Solidity files have to start with this pragma.\n
-    // It will be used by the Solidity compiler to validate its version.\n
-    pragma solidity ^0.8.0;\n
-    
-    
-    // This is the main building block for smart contracts.\n
-    contract Token {\n
-        // Some string type variables to identify the token.\n
-        string public name = \"My Hardhat Token\";\n
-        string public symbol = \"MHT\";\n
-    
-        // The fixed amount of tokens, stored in an unsigned integer type variable.\n
-        uint256 public totalSupply = 1000000;\n
-    
-        // An address type variable is used to store ethereum accounts.\n
-        address public owner;\n
-    
-        // A mapping is a key/value map. Here we store each account's balance.\n
-        mapping(address => uint256) balances;\n
-    
-        // The Transfer event helps off-chain applications understand\n
-        // what happens within your contract.\n
-        event Transfer(address indexed _from, address indexed _to, uint256 _value);\n
-    
-        /**\n
-         * Contract initialization.\n
-         */\n
-        constructor() {\n
-            // The totalSupply is assigned to the transaction sender, which is the\n
-            // account that is deploying the contract.\n
-            balances[msg.sender] = totalSupply;\n
-            owner = msg.sender;\n
-        }
-    
-        /**\n
-         * A function to transfer tokens.\n
-         *\n
-         * The `external` modifier makes a function *only* callable from *outside*\n
-         * the contract.\n
-         */\n\n
-        function transfer(address to, uint256 amount) external {\n
-            // Check if the transaction sender has enough tokens.\n
-            // If `require`'s first argument evaluates to `false` then the\n
-            // transaction will revert.\n
-            require(balances[msg.sender] >= amount, \"Not enough tokens\");\n
-    
-            // Transfer the amount.\n
-            balances[msg.sender] -= amount;\n
-            balances[to] += amount;\n
-    
-            // Notify off-chain applications of the transfer.\n
-            emit Transfer(msg.sender, to, amount);\n
-        }
-    
-        /**\n
-         * Read only function to retrieve the token balance of a given account.\n
-         *\n
-         * The `view` modifier indicates that it doesn't modify the contract's\n
-         * state, which allows us to call it without executing a transaction.\n
-         */\n
-        function balanceOf(address account) external view returns (uint256) {\n
-            return balances[account];\n
-        }\n
-    }\n
+        // SPDX-License-Identifier: MIT\n
+        // Compatible with OpenZeppelin Contracts ^5.0.0\n
+        pragma solidity ^0.8.20;\n
+        
+        import \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n
+        import \"@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol\";\n
+        import \"@openzeppelin/contracts/access/Ownable.sol\";\n
+        import \"@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol\";\n\n
+        
+        contract MyToken is ERC20, ERC20Burnable, Ownable, ERC20Permit {\n
+          
 
+            constructor(address initialOwner,string memory _name, string memory _symbol )\n
+                ERC20(_name, _symbol)\n
+                Ownable(initialOwner)\n
+                ERC20Permit(_name)\n
+            {}
+        
+            function mint(address to, uint256 amount) public onlyOwner {
+                _mint(to, amount);
+            }
+        }
     ",
     )?;
 
     println!("File 'example.sol' created successfully!");
-    write_script();
-    Ok(())
+    make_deploy_ts(&data.name, &data.symbol, &data.owner).unwrap();
+ let result =   write_script();
+    Ok(result)
 }
 
-pub fn write_script() {
+fn make_deploy_ts(token_name: &str, symbol: &str, address: &str) -> std::io::Result<()> {
+    let mut file = File::create("./src/smart_contract/ignition/modules/Token.ts")?;
+
+    file.write_all(
+        format!(
+            r#"
+        const {{ buildModule }} = require("@nomicfoundation/hardhat-ignition/modules");
+
+        const TokenModule = buildModule("TokenModule", (m:any) => {{
+        const tokenName = m.getParameter("_name", "{}");
+        const tokenSymbol = m.getParameter("_symbol", "{}");
+        const owner = m.getParameter("initialOwner","{}");
+        const token = m.contract("MyToken",[owner,tokenName,tokenSymbol]);
+
+        return {{ token }};
+        }});
+
+        module.exports = TokenModule;
+    "#,
+            token_name, symbol, address
+        )
+        .as_bytes(),
+    )?;
+    Ok(())
+}
+pub fn write_script()->String {
     // Change directory using current_dir() instead of cd command
     let output = Command::new("cmd")
         .current_dir("./src/smart_contract") // Setting the directory directly
-        .args(["/C","npm run compile"])
+        .args(["/C", "npm run compile"])
         .output()
         .expect("Failed to execute command");
 
     // Check if the command was executed successfully
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
-        // println!("Output: {}", stdout);
-        let result = Command::new("cmd").current_dir("./src/smart_contract").args(["/C"," echo y | npx hardhat ignition deploy .\\ignition\\modules\\Lock.ts --network sepolia --verify
+        println!("Output: {}", stdout);
+        let result = Command::new("cmd").current_dir("./src/smart_contract").args(["/C"," echo y | npx hardhat ignition deploy .\\ignition\\modules\\Token.ts --network sepolia --verify
         "]).output().expect("msg");
         if result.status.success() {
+
+            println!("result:::::::::::::::::{}",String::from_utf8_lossy(&result.stdout));
             
-            // println!("result:::::::::::::::::{}",String::from_utf8_lossy(&result.));
+            delete_folder_and_file().unwrap();
+           if let Some(e) = extract_url(&String::from_utf8_lossy(&result.stdout)) {
+            println!("result=={}",e);
+               return e.to_string();
+           } else {
+            return  "deploy is failed ".to_string();
+           }
+        }else {
+            return  "deploy is failed ".to_string();
         }
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
         eprintln!("Error: {}", stderr);
+        return  "deploy is failed ".to_string();
     }
+}
+
+fn delete_folder(path: &str) -> io::Result<()> {
+    if fs::metadata(path).is_ok() {
+        fs::remove_dir_all(path)?;
+        println!("Folder '{}' and its contents deleted successfully.", path);
+    } else {
+        println!("Folder '{}' does not exist.", path);
+    }
+    Ok(())
+}
+
+fn delete_file(path: &str) -> io::Result<()> {
+    if fs::metadata(path).is_ok() {
+        fs::remove_file(path)?;
+        println!("File '{}' deleted successfully.", path);
+    } else {
+        println!("File '{}' does not exist.", path);
+    }
+    Ok(())
+}
+
+fn delete_folder_and_file() -> io::Result<()> {
+    let folders = [
+        "./src/smart_contract/artifacts",
+        "./src/smart_contract/cache",
+        "./src/smart_contract/typechain-types",
+        "./src/smart_contract/ignition/deployments",
+    ];
+
+    for folder in folders.iter() {
+        delete_folder(folder)?;
+    }
+
+    let file_path = "./src/smart_contract/ignition/modules/Token.ts";
+    delete_file(file_path)?;
+
+    Ok(())
+}
+
+fn extract_url(input: &str) -> Option<&str> {
+    let re = Regex::new(r"https://[^\s]+").unwrap();
+    re.find(input).map(|m| m.as_str())
 }
