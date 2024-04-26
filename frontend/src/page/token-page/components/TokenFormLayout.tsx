@@ -12,14 +12,21 @@ import StepConnector, {
 } from "@mui/material/StepConnector";
 import { StepIconProps } from "@mui/material/StepIcon";
 import InitForm from "./InitForm";
-import { Box, Button, StepButton, Typography } from "@mui/material";
+import { Alert, Box, Button, StepButton, Typography } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
-import { symbol, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GenerateParamType } from "../../../types/generate";
 import { useAccount } from "wagmi";
 import { generateContract } from "../../../services/api";
-
+import TokenomicsForm from "./TokenomicsForm";
+import Review from "./Review";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import NavigateNext from "@mui/icons-material/NavigateNext";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import RocketIcon from "@mui/icons-material/Rocket";
+import MintingDialog from "./MintingDialog";
+import SuccessDialog from "./SuccessDialog";
 // const QontoConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${stepConnectorClasses.alternativeLabel}`]: {
 //     top: 10,
@@ -156,6 +163,14 @@ export default function CustomizedSteppers() {
   const [completed, setCompleted] = React.useState<{
     [k: number]: boolean;
   }>({});
+  const [info, setInfo] = React.useState<Partial<GenerateParamType>>({
+    name: "",
+    symbol: "",
+  });
+  const [loading, setLoading] = React.useState(false);
+  const [url, setUrl] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const [error, setError] = React.useState("");
   const { address } = useAccount();
 
   const totalSteps = () => {
@@ -213,7 +228,7 @@ export default function CustomizedSteppers() {
   };
   const schema = z.object({
     name: z.string().nonempty("You must enter token name"),
-    symbol: z.string(),
+    symbol: z.string().nonempty("You must enter token symbol"),
     decimal: z.number(),
     supply: z.number(),
     maxBuy: z.number(),
@@ -225,15 +240,23 @@ export default function CustomizedSteppers() {
     resolver: zodResolver(schema),
   });
   const { handleSubmit } = methods;
-
   const onSubmit = async (data: Partial<GenerateParamType>) => {
-    console.log("data==", data, address);
     data.owner = address;
-    try {
-      const res = await generateContract(data as GenerateParamType);
-      console.log("res==", res.data);
-    } catch (error) {
-      console.log("err===", error);
+    setInfo(data);
+    if (completedSteps() === totalSteps() - 1) {
+      try {
+        setLoading(true);
+        const res = await generateContract(data as GenerateParamType);
+        setLoading(false);
+        setUrl(res.data.url);
+        setOpen(true);
+      } catch (error) {
+        setLoading(false);
+        setError("Deploy failed");
+        console.log("err===", error);
+      }
+    } else {
+      handleComplete();
     }
   };
   // const { errors } = formState;
@@ -265,9 +288,22 @@ export default function CustomizedSteppers() {
           ))}
         </Stepper>
       </Stack>
-      <Stack spacing={4}>
+      <Stack spacing={4} mt={4}>
+        {!address && (
+          <Alert severity="error">
+            <Typography>Please connect your wallet</Typography>
+          </Alert>
+        )}
+        {error && (
+          <Alert severity="error">
+            <Typography>{error}</Typography>
+          </Alert>
+        )}
         <FormProvider {...methods}>
-          <InitForm />
+          {activeStep === 0 && <InitForm />}
+          {activeStep === 1 && <TokenomicsForm />}
+          {activeStep === 2 && <Review data={info} />}
+
           {/* <Grid container justifyContent={"center"} className="mt-6">
             <Button variant="contained">Next</Button>
           </Grid> */}
@@ -294,6 +330,7 @@ export default function CustomizedSteppers() {
                     disabled={activeStep === 0}
                     onClick={handleBack}
                     sx={{ mr: 1 }}
+                    startIcon={<ChevronLeftIcon />}
                   >
                     Back
                   </Button>
@@ -302,6 +339,7 @@ export default function CustomizedSteppers() {
                     variant="contained"
                     onClick={handleNext}
                     sx={{ mr: 1 }}
+                    endIcon={<NavigateNext />}
                   >
                     Next
                   </Button>
@@ -315,14 +353,19 @@ export default function CustomizedSteppers() {
                       </Typography>
                     ) : completedSteps() === totalSteps() - 1 ? (
                       <Button
+                        startIcon={<RocketIcon />}
                         variant="contained"
                         onClick={handleSubmit(onSubmit)}
                       >
                         Launch
                       </Button>
                     ) : (
-                      <Button variant="contained" onClick={handleComplete}>
-                        Complete Step
+                      <Button
+                        startIcon={<CheckCircleIcon />}
+                        variant="contained"
+                        onClick={handleSubmit(onSubmit)}
+                      >
+                        Complete
                       </Button>
                     ))}
                 </Box>
@@ -331,6 +374,8 @@ export default function CustomizedSteppers() {
           </div>
         </FormProvider>
       </Stack>
+      <MintingDialog open={loading} />
+      <SuccessDialog open={open} handleClose={() => setOpen(false)} url={url} />
     </>
   );
 }
