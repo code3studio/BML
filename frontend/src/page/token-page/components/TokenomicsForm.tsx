@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { GenerateParamType } from "../../../types/generate";
+import TeamAllocationForm from "./TeamAllocationForm";
+import LpForm from "./LpForm";
 
 type Props = {};
 
@@ -302,6 +304,8 @@ const TokenomicsForm = (_props: Props) => {
           </Grid>
         )}
       />
+      <TeamAllocationForm />
+      <LpForm />
     </>
   );
 };
