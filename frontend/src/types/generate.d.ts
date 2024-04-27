@@ -6,4 +6,5 @@ export type GenerateParamType = {
   maxBuy?: number;
   initialLP?: number;
   owner: string;
+  mintable?: boolean;
 };

@@ -12,7 +12,15 @@ import StepConnector, {
 } from "@mui/material/StepConnector";
 import { StepIconProps } from "@mui/material/StepIcon";
 import InitForm from "./InitForm";
-import { Alert, Box, Button, StepButton, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  FormControlLabel,
+  StepButton,
+  Switch,
+  Typography,
+} from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,66 +35,6 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import RocketIcon from "@mui/icons-material/Rocket";
 import MintingDialog from "./MintingDialog";
 import SuccessDialog from "./SuccessDialog";
-// const QontoConnector = styled(StepConnector)(({ theme }) => ({
-//   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-//     top: 10,
-//     left: "calc(-50% + 16px)",
-//     right: "calc(50% + 16px)",
-//   },
-//   [`&.${stepConnectorClasses.active}`]: {
-//     [`& .${stepConnectorClasses.line}`]: {
-//       borderColor: "#784af4",
-//     },
-//   },
-//   [`&.${stepConnectorClasses.completed}`]: {
-//     [`& .${stepConnectorClasses.line}`]: {
-//       borderColor: "#784af4",
-//     },
-//   },
-//   [`& .${stepConnectorClasses.line}`]: {
-//     borderColor:
-//       theme.palette.mode === "dark" ? theme.palette.grey[800] : "#eaeaf0",
-//     borderTopWidth: 3,
-//     borderRadius: 1,
-//   },
-// }));
-
-// const QontoStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
-//   ({ theme, ownerState }) => ({
-//     color: theme.palette.mode === "dark" ? theme.palette.grey[700] : "#eaeaf0",
-//     display: "flex",
-//     height: 22,
-//     alignItems: "center",
-//     ...(ownerState.active && {
-//       color: "#784af4",
-//     }),
-//     "& .QontoStepIcon-completedIcon": {
-//       color: "#784af4",
-//       zIndex: 1,
-//       fontSize: 18,
-//     },
-//     "& .QontoStepIcon-circle": {
-//       width: 8,
-//       height: 8,
-//       borderRadius: "50%",
-//       backgroundColor: "currentColor",
-//     },
-//   })
-// );
-
-// function QontoStepIcon(props: StepIconProps) {
-//   const { active, completed, className } = props;
-
-//   return (
-//     <QontoStepIconRoot ownerState={{ active }} className={className}>
-//       {completed ? (
-//         <Check className="QontoStepIcon-completedIcon" />
-//       ) : (
-//         <div className="QontoStepIcon-circle" />
-//       )}
-//     </QontoStepIconRoot>
-//   );
-// }
 
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -166,8 +114,6 @@ function ColorlibStepIcon(props: StepIconProps) {
   );
 }
 
-const steps = ["Basic", "Advance", "Review"];
-
 export default function CustomizedSteppers() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState<{
@@ -182,7 +128,15 @@ export default function CustomizedSteppers() {
   const [open, setOpen] = React.useState(false);
   const [error, setError] = React.useState("");
   const { address } = useAccount();
+  const [mode, setMode] = React.useState<"basic" | "advance">("basic");
 
+  const steps = React.useMemo(() => {
+    if (mode === "advance") {
+      return ["Basic", "Advance", "Review"];
+    } else {
+      return ["Basic", "Review"];
+    }
+  }, [mode]);
   const totalSteps = () => {
     return steps.length;
   };
@@ -235,6 +189,7 @@ export default function CustomizedSteppers() {
     supply: 1000,
     maxBuy: 1000,
     initialLP: 1000,
+    mintable: false,
   };
   const schema = z.object({
     name: z.string().nonempty("You must enter token name"),
@@ -243,6 +198,7 @@ export default function CustomizedSteppers() {
     supply: z.number(),
     maxBuy: z.number(),
     initialLP: z.number(),
+    mintable: z.boolean(),
   });
   const methods = useForm({
     mode: "onChange",
@@ -280,6 +236,16 @@ export default function CustomizedSteppers() {
           </Step>
         ))}
       </Stepper> */}
+        <FormControlLabel
+          control={
+            <Switch
+              onChange={() =>
+                setMode((m) => (m === "advance" ? "basic" : "advance"))
+              }
+            />
+          }
+          label="Mode"
+        />
         <Stepper
           alternativeLabel
           nonLinear
@@ -310,9 +276,19 @@ export default function CustomizedSteppers() {
           </Alert>
         )}
         <FormProvider {...methods}>
-          {activeStep === 0 && <InitForm />}
-          {activeStep === 1 && <TokenomicsForm />}
-          {activeStep === 2 && <Review data={info} />}
+          {mode === "advance" ? (
+            <>
+              {activeStep === 0 && <InitForm />}
+              {activeStep === 1 && <TokenomicsForm />}
+              {activeStep === 2 && <Review data={info} />}
+            </>
+          ) : (
+            <>
+              {activeStep === 0 && <InitForm />}
+
+              {activeStep === 1 && <Review data={info} />}
+            </>
+          )}
 
           {/* <Grid container justifyContent={"center"} className="mt-6">
             <Button variant="contained">Next</Button>
