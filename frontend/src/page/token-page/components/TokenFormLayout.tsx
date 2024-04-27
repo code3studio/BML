@@ -94,18 +94,22 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundImage:
-        "linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)",
+      background:
+        "linear-gradient(94deg, rgba(9,12,155,1) 0%, rgba(48,102,190,1) 38%)",
+      // backgroundImage:
+      //   "linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)",
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundImage:
-        "linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)",
+      background:
+        "linear-gradient(94deg, rgba(9,12,155,1) 0%, rgba(48,102,190,1) 38%)",
+      // backgroundImage:
+      //   "linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)",
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    height: 3,
+    height: 10,
     border: 0,
     backgroundColor:
       theme.palette.mode === "dark" ? theme.palette.grey[800] : "#eaeaf0",
@@ -127,13 +131,19 @@ const ColorlibStepIconRoot = styled("div")<{
   justifyContent: "center",
   alignItems: "center",
   ...(ownerState.active && {
-    backgroundImage:
-      "linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)",
+    // backgroundColor: "#3066be",
+    background:
+      "linear-gradient(180deg, rgba(9,12,155,1) 0%, rgba(48,102,190,1) 61%, rgba(180,197,228,1) 100%)",
+    // backgroundImage:
+    //   "linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)",
     boxShadow: "0 4px 10px 0 rgba(0,0,0,.25)",
   }),
   ...(ownerState.completed && {
-    backgroundImage:
-      "linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)",
+    // backgroundColor: "#3066be",
+    background:
+      "linear-gradient(180deg, rgba(9,12,155,1) 0%, rgba(48,102,190,1) 61%, rgba(180,197,228,1) 100%)",
+    // backgroundImage:
+    //   "linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)",
   }),
 }));
 
