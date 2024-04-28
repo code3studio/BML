@@ -15,7 +15,7 @@ const TeamAllocationForm = (_props: Props) => {
     <>
       <Divider textAlign="left">Team & Marketing</Divider>
       <Controller
-        name="maxBuy"
+        name="teamWalletAddress"
         control={control}
         render={({ field }) => (
           <Grid
@@ -32,9 +32,9 @@ const TeamAllocationForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <TextField
                 type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                label="Team Wallet Address"
+                error={!!errors.teamWalletAddress}
+                helperText={errors?.teamWalletAddress?.message}
                 {...field}
                 fullWidth
               />
@@ -43,7 +43,7 @@ const TeamAllocationForm = (_props: Props) => {
         )}
       />
       <Controller
-        name="maxBuy"
+        name="teamDistributionPercentage"
         control={control}
         render={({ field }) => (
           <Grid
@@ -60,9 +60,9 @@ const TeamAllocationForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <TextField
                 type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                label="Distribution Percentage"
+                error={!!errors.teamDistributionPercentage}
+                helperText={errors?.teamDistributionPercentage?.message}
                 {...field}
                 fullWidth
               />
@@ -71,7 +71,7 @@ const TeamAllocationForm = (_props: Props) => {
         )}
       />
       <Controller
-        name="maxBuy"
+        name="unlockTime"
         control={control}
         render={({}) => (
           <Grid

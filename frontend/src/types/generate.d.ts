@@ -7,4 +7,13 @@ export type GenerateParamType = {
   initialLP?: number;
   owner: string;
   mintable?: boolean;
+  redistributionTax: number;
+  liquidityFee: number;
+  charityFee: number;
+  marketingFee: number;
+  burnFee: number;
+  teamWalletAddress: string;
+  teamDistributionPercentage: number;
+  unlockTime: string;
+  totalSupply: number;
 };

@@ -17,6 +17,7 @@ import {
   Box,
   Button,
   FormControlLabel,
+  Grid,
   StepButton,
   Switch,
   Typography,
@@ -190,6 +191,16 @@ export default function CustomizedSteppers() {
     maxBuy: 1000,
     initialLP: 1000,
     mintable: false,
+    totalSupply: 1000000,
+    redistributionTax: 0,
+    liquidityFee: 0,
+    charityFee: 0,
+    marketingFee: 0,
+    burnFee: 0,
+    teamWalletAddress: "",
+    teamDistributionPercentage: 0,
+    unlockTime: "",
+    // liquidity
   };
   const schema = z.object({
     name: z.string().nonempty("You must enter token name"),
@@ -199,6 +210,15 @@ export default function CustomizedSteppers() {
     maxBuy: z.number(),
     initialLP: z.number(),
     mintable: z.boolean(),
+    redistributionTax: z.number(),
+    liquidityFee: z.number(),
+    charityFee: z.number(),
+    marketingFee: z.number(),
+    burnFee: z.number(),
+    teamWalletAddress: z.string(),
+    teamDistributionPercentage: z.number(),
+    unlockTime: z.string(),
+    totalSupply: z.number(),
   });
   const methods = useForm({
     mode: "onChange",
@@ -265,16 +285,18 @@ export default function CustomizedSteppers() {
         </Stepper>
       </Stack>
       <Stack spacing={4} mt={4}>
-        {!address && (
-          <Alert severity="error">
-            <Typography>Please connect your wallet</Typography>
-          </Alert>
-        )}
-        {error && (
-          <Alert severity="error">
-            <Typography>{error}</Typography>
-          </Alert>
-        )}
+        <Grid container justifyContent="center">
+          {!address && (
+            <Alert severity="error">
+              <Typography>Please connect your wallet</Typography>
+            </Alert>
+          )}
+          {error && (
+            <Alert severity="error">
+              <Typography>{error}</Typography>
+            </Alert>
+          )}
+        </Grid>
         <FormProvider {...methods}>
           {mode === "advance" ? (
             <>

@@ -133,7 +133,7 @@ const TokenomicsForm = (_props: Props) => {
       {mintable && (
         <>
           <Controller
-            name="mintable"
+            name="totalSupply"
             control={control}
             render={({ field }) => (
               <Grid
@@ -150,9 +150,9 @@ const TokenomicsForm = (_props: Props) => {
                 <Grid item md={6} sm={12} xs={12}>
                   <TextField
                     type="number"
-                    label="Initial LP"
-                    error={!!errors.initialLP}
-                    helperText={errors?.initialLP?.message}
+                    label="Total Supply"
+                    error={!!errors.totalSupply}
+                    helperText={errors?.totalSupply?.message}
                     {...field}
                     fullWidth
                     required
@@ -165,7 +165,7 @@ const TokenomicsForm = (_props: Props) => {
       )}
       <Divider textAlign="left">Taxes & Fees </Divider>
       <Controller
-        name="maxBuy"
+        name="redistributionTax"
         control={control}
         render={({ field }) => (
           <Grid
@@ -182,9 +182,9 @@ const TokenomicsForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <TextField
                 type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                label="Redistribution Tax"
+                error={!!errors.redistributionTax}
+                helperText={errors?.redistributionTax?.message}
                 {...field}
                 fullWidth
               />
@@ -193,7 +193,7 @@ const TokenomicsForm = (_props: Props) => {
         )}
       />
       <Controller
-        name="maxBuy"
+        name="liquidityFee"
         control={control}
         render={({ field }) => (
           <Grid
@@ -210,9 +210,9 @@ const TokenomicsForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <TextField
                 type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                label="Liquidity Fee"
+                error={!!errors.liquidityFee}
+                helperText={errors?.liquidityFee?.message}
                 {...field}
                 fullWidth
               />
@@ -221,7 +221,7 @@ const TokenomicsForm = (_props: Props) => {
         )}
       />
       <Controller
-        name="maxBuy"
+        name="charityFee"
         control={control}
         render={({ field }) => (
           <Grid
@@ -239,8 +239,8 @@ const TokenomicsForm = (_props: Props) => {
               <TextField
                 type="number"
                 label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                error={!!errors.charityFee}
+                helperText={errors?.charityFee?.message}
                 {...field}
                 fullWidth
               />
@@ -249,7 +249,7 @@ const TokenomicsForm = (_props: Props) => {
         )}
       />
       <Controller
-        name="maxBuy"
+        name="marketingFee"
         control={control}
         render={({ field }) => (
           <Grid
@@ -266,9 +266,9 @@ const TokenomicsForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <TextField
                 type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                label="Marketing Fee"
+                error={!!errors.marketingFee}
+                helperText={errors?.marketingFee?.message}
                 {...field}
                 fullWidth
               />
@@ -277,7 +277,7 @@ const TokenomicsForm = (_props: Props) => {
         )}
       />
       <Controller
-        name="maxBuy"
+        name="burnFee"
         control={control}
         render={({ field }) => (
           <Grid
@@ -294,9 +294,9 @@ const TokenomicsForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <TextField
                 type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+                label="Burn Fee"
+                error={!!errors.burnFee}
+                helperText={errors?.burnFee?.message}
                 {...field}
                 fullWidth
               />

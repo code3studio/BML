@@ -13,7 +13,9 @@ const TokenPage = () => {
   return (
     <>
       <Grid container justifyContent={"center"}>
-        <Typography variant="h5">Launch on base in seconds</Typography>
+        <Typography variant="h5" mt={8}>
+          Launch on base in seconds
+        </Typography>
       </Grid>
       <FormRoot>
         <CustomizedSteppers />

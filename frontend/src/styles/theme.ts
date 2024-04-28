@@ -65,6 +65,9 @@ const theme: ThemeOptions = {
       fontSize: "14px",
       fontWeight: 700,
     },
+    h6: {
+      fontWeight: 700,
+    },
   },
   components: {
     MuiButton: {
@@ -79,7 +82,7 @@ const theme: ThemeOptions = {
 
           //   boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
           // //   color: 'white',
-          height: 38,
+          height: 46,
           padding: "0 30px",
         },
       },
@@ -97,6 +100,25 @@ const theme: ThemeOptions = {
         root: {
           borderRadius: 18,
         },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {},
       },
     },
   },
