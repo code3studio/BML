@@ -86,7 +86,7 @@ const InitForm = () => {
       <Controller
         name="decimal"
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -114,6 +114,7 @@ const InitForm = () => {
                 {...field}
                 fullWidth
                 required
+                onChange={(e) => onChange(Number(e.target.value))}
               />
             </Grid>
           </Grid>

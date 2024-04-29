@@ -16,4 +16,5 @@ export type GenerateParamType = {
   teamDistributionPercentage: number;
   unlockTime: string;
   totalSupply: number;
+  mode: "advance" | "basic";
 };

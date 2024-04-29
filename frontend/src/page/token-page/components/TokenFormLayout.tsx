@@ -231,6 +231,7 @@ export default function CustomizedSteppers() {
     setInfo(data);
     if (completedSteps() === totalSteps() - 1) {
       try {
+        data.mode = mode;
         setLoading(true);
         const res = await generateContract(data as GenerateParamType);
         setLoading(false);
@@ -371,7 +372,7 @@ export default function CustomizedSteppers() {
                       <Button
                         startIcon={<CheckCircleIcon />}
                         variant="contained"
-                        onClick={handleSubmit(onSubmit)}
+                        onClick={handleSubmit(onSubmit, handleComplete)}
                       >
                         Complete
                       </Button>

@@ -19,6 +19,8 @@ const TokenomicsForm = (_props: Props) => {
   const { errors } = formState;
 
   const mintable = watch("mintable");
+  const supply = watch("supply");
+  console.log("supply==", typeof supply);
   return (
     <>
       <div className="flex justify-center items-center mt-5">
@@ -27,7 +29,7 @@ const TokenomicsForm = (_props: Props) => {
       <Controller
         name="supply"
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -48,6 +50,7 @@ const TokenomicsForm = (_props: Props) => {
                 {...field}
                 fullWidth
                 required
+                onChange={(e) => onChange(Number(e.target.value))}
               />
             </Grid>
           </Grid>

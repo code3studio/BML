@@ -4,7 +4,7 @@ use crate::{model::signature_model::{GenerateRequest, GenerateResponse}, utils::
 
 #[post("/generate")]
 pub async fn generate(req: Json<GenerateRequest>) -> Result<HttpResponse, Error> {
-    println!("req={} : {}", req.initial_lp.clone().unwrap(), req.name);
+    println!("req={:?} ", req);
     match generate_contract(req) {
         Ok(e) => {
             println!("rrr={}",e);
