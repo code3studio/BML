@@ -7,7 +7,7 @@ use actix_web::web::Json;
 
 use crate::model::signature_model::GenerateRequest;
 
-pub fn make_advance_contract(data:Json<GenerateRequest>) -> Result<()> {
+pub fn make_team_contract(data:Json<GenerateRequest>) -> Result<()> {
     let mut file = File::create("./src/smart_contract/contracts/MyExample.sol")?;
 
     file.write_all(

@@ -5,12 +5,14 @@ mod utils;
 use actix_cors::Cors;
 use actix_web::web::scope;
 use actix_web::{get, middleware::Logger, web::Data, App, HttpResponse, HttpServer, Responder};
+use dotenv::dotenv;
 use env_logger::Env;
 use routes::generate::generate;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    dotenv().ok();
 
     let server = HttpServer::new(move || {
         App::new()
