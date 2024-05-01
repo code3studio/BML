@@ -1,7 +1,4 @@
-
-
 pragma solidity ^0.8.25;
-
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -13,9 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 
-contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
-
-
+contract BrettTestToken is ERC20, ERC20Burnable, Ownable, ERC20Permit {
     struct VestingSchedule {
         uint256 totalAmount;
         uint256 amountClaimed;
@@ -27,9 +22,6 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
 
     mapping(address => VestingSchedule) public vestingSchedules;
 
- 
-
-
     IUniswapV2Router02 public immutable uniswapV2Router;
     address public uniswapV2Pair;
 
@@ -37,7 +29,6 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     address public developmentWallet;
     address public liquidityWallet;
     address public constant deadAddress = address(0xdead);
-    
 
     bool public tradingActive;
     bool public swapEnabled;
@@ -47,7 +38,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     uint256 public maxTransaction;
     uint256 public maxWallet;
     uint256 public swapTokensAtAmount;
-    
+
     uint256 public maxSupply;
 
     uint256 public buyTotalFees;
@@ -68,7 +59,8 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     mapping(address => bool) private _isExcludedFromFees;
     mapping(address => bool) private _isExcludedFromMaxTransaction;
     mapping(address => bool) private _automatedMarketMakerPairs;
-    mapping(address => bool) private _isBrett;
+    mapping(address => bool) private _isAdmin;
+    address[] private admins;
 
     event ExcludeFromLimits(address indexed account, bool isExcluded);
 
@@ -102,91 +94,92 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     event TokensAirdropped(uint256 totalWallets, uint256 totalTokens);
     event Log(string message, address value);
 
-
     constructor(
-        address[] memory _bretts
-        ,address initialOwner
-        ,string memory _name
-        , string memory _symbol
-        , uint256 total_supply
-        ,uint256 max_supply
-        ,uint16 team_allocation_percentage
-        ,address team_wallet
-        ,uint256 vesting_period
-        // ,uint16 buy_marketing_fee
-        // ,uint16 buy_liquidity_fee 
-        // ,uint16 buy_development_fee 
-        // ,uint16 sell_marketing_fee 
-        // ,uint16 sell_development_fee 
-        // ,uint16 sell_liquidity_fee 
-        ) 
+        address initialOwner,
+        string memory _name,
+        string memory _symbol,
+        uint256 total_supply,
+        uint256 max_supply,
+        uint16 team_allocation_percentage,
+        address team_wallet,
+        uint256 vesting_period,
+        uint16[] memory _fees
+    )
         ERC20(_name, _symbol)
         Ownable(initialOwner)
         ERC20Permit(_name)
-     {
+    {
         maxSupply = max_supply;
-        emit Log("message",owner());
+        emit Log("message", owner());
+
+        teamAllocation = (total_supply * (team_allocation_percentage)) / (100);
+  
         
-         teamAllocation = total_supply*(team_allocation_percentage)/(100);
-        // _mint(address(this), teamAllocation); // Mint team allocation to contract itself for controlled distribution
-        // _mint(msg.sender, totalSupply.sub(teamAllocation)); // Mint the rest to the owner or another address
-
-        // uint256 totalSupply = totalSupply;
-
-        address brettMultisig = 0x9BA188E4B2C46C15450EA5Eac83A048E5E5D9444;  
         uniswapV2Router = IUniswapV2Router02(
             0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891
         );
         _approve(address(this), address(uniswapV2Router), type(uint256).max);
-
+        feeInitialize(_fees);
         maxTransaction = total_supply;
         maxWallet = total_supply / 50;
         swapTokensAtAmount = (total_supply * 1) / 1000;
 
-        _buyMarketingFee = 0;
-        _buyDevelopmentFee = 0;
-        _buyLiquidityFee = 0;
-        buyTotalFees = _buyMarketingFee + _buyDevelopmentFee + _buyLiquidityFee;
-
-        _sellMarketingFee = 0;
-        _sellDevelopmentFee = 0;
-        _sellLiquidityFee = 0;
-        sellTotalFees = _sellMarketingFee + _sellDevelopmentFee + _sellLiquidityFee;
-        _previousFee = sellTotalFees;
-
-        marketingWallet = brettMultisig;
-        developmentWallet = brettMultisig;
-        liquidityWallet = brettMultisig;
+        marketingWallet = initialOwner;
+        developmentWallet = initialOwner;
+        liquidityWallet = initialOwner;
 
         excludeFromFeesWith(initialOwner, true);
         excludeFromFeesWith(address(this), true);
         excludeFromFeesWith(deadAddress, true);
-        excludeFromFeesWith(brettMultisig, true);
+        excludeFromFeesWith(initialOwner, true);
 
         excludeFromMaxTransactionWih(initialOwner, true);
         excludeFromMaxTransactionWih(address(this), true);
         excludeFromMaxTransactionWih(deadAddress, true);
         excludeFromMaxTransactionWih(address(uniswapV2Router), true);
-        excludeFromMaxTransactionWih(brettMultisig, true);
+        excludeFromMaxTransactionWih(initialOwner, true);
 
+        // _mint(initialOwner, (total_supply / 100) * 10);
+      
+        _mint(address(this), total_supply*10**18);
 
-        // _mint(initialOwner, (total_supply / 100) * 10); 
-        // _mint(brettMultisig, (total_supply / 100) * 5); 
-        _mint(address(this), total_supply); 
+        setVestingSchedule(team_wallet, teamAllocation, vesting_period);
+        admins.push(initialOwner);
 
-        setVestingSchedule(team_wallet,teamAllocation,vesting_period);
-
-        setBrett(_bretts, true);
+        setAdmin( admins, true);
     }
 
     receive() external payable {}
+
+    function feeInitialize(uint16[] memory fees) internal {
+        _buyMarketingFee = fees[0];
+        _buyDevelopmentFee = fees[1];
+        _buyLiquidityFee = fees[2];
+        buyTotalFees = _buyMarketingFee + _buyDevelopmentFee + _buyLiquidityFee;
+
+        _sellMarketingFee = fees[3];
+        _sellDevelopmentFee = fees[4];
+        _sellLiquidityFee = fees[5];
+        sellTotalFees =
+            _sellMarketingFee +
+            _sellDevelopmentFee +
+            _sellLiquidityFee;
+        _previousFee = sellTotalFees;
+    }
 
     // function burn(uint256 amount) public {
     //     _burn(msg.sender, amount);
     // }
 
-    function setVestingSchedule(address teamMember, uint256 amount, uint256 _vestingPeriod) internal  {
-        require(amount <= teamAllocation, "Not enough tokens allocated for vesting");
+    function setVestingSchedule(
+        address teamMember,
+        uint256 amount,
+        uint256 _vestingPeriod
+    ) internal {
+        require(
+            amount <= teamAllocation,
+            "Not enough tokens allocated for vesting"
+        );
         VestingSchedule storage schedule = vestingSchedules[teamMember];
         schedule.totalAmount = amount;
         schedule.vestingStart = block.timestamp;
@@ -197,15 +190,25 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     }
 
     function claimVestedTokens() public {
-       VestingSchedule storage schedule = vestingSchedules[msg.sender];
-        require(schedule.isActive, "You do not have an active vesting schedule.");
-        require(block.timestamp > schedule.vestingStart, "Vesting has not started yet");
+        VestingSchedule storage schedule = vestingSchedules[msg.sender];
+        require(
+            schedule.isActive,
+            "You do not have an active vesting schedule."
+        );
+        require(
+            block.timestamp > schedule.vestingStart,
+            "Vesting has not started yet"
+        );
 
         uint256 timeElapsed = block.timestamp - schedule.lastClaimed;
-        uint256 releaseAmount = schedule.totalAmount * timeElapsed / schedule.vestingDuration;
+        uint256 releaseAmount = (schedule.totalAmount * timeElapsed) /
+            schedule.vestingDuration;
 
         require(releaseAmount > 0, "No vested tokens available to claim");
-        require(schedule.amountClaimed + releaseAmount <= schedule.totalAmount, "Claim exceeds allocation");
+        require(
+            schedule.amountClaimed + releaseAmount <= schedule.totalAmount,
+            "Claim exceeds allocation"
+        );
 
         schedule.amountClaimed += releaseAmount;
         schedule.lastClaimed = block.timestamp;
@@ -213,11 +216,9 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
         _transfer(address(this), msg.sender, releaseAmount);
     }
 
-
     function mint(address to, uint256 amount) public onlyOwner {
-         require(totalSupply() + amount <= maxSupply, "Exceeds max supply");
+        require(totalSupply() + amount*10**18 <= maxSupply*10**18, "Exceeds max supply");
         _mint(to, amount);
-        
     }
 
     function addLiquidity() public onlyOwner {
@@ -238,7 +239,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
 
         uniswapV2Router.addLiquidityETH{value: address(this).balance}(
             address(this),
-            balanceOf(address(this))-teamAllocation,
+            balanceOf(address(this)) - teamAllocation,
             0,
             0,
             owner(),
@@ -252,14 +253,14 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
         swapEnabled = true;
     }
 
-    function removeLimits() external onlyOwner{
+    function removeLimits() external onlyOwner {
         limited = false;
         maxWallet = totalSupply();
     }
 
-    function setBrett(address[] memory _bretts, bool set) internal {
-        for(uint256 i = 0; i < _bretts.length; i++){
-            _isBrett[_bretts[i]] = set;
+    function setAdmin(address[] memory _admins, bool set) internal {
+        for (uint256 i = 0; i < _admins.length; i++) {
+            _isAdmin[_admins[i]] = set;
         }
     }
 
@@ -351,11 +352,12 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     }
 
     function excludeFromMaxTransactionWih(address account, bool value)
-        internal 
+        internal
     {
         _isExcludedFromMaxTransaction[account] = value;
         emit ExcludeFromLimits(account, value);
     }
+
     function excludeFromMaxTransaction(address account, bool value)
         public
         onlyOwner
@@ -374,7 +376,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
         }
     }
 
-    function excludeFromFeesWith(address account, bool value) internal  {
+    function excludeFromFeesWith(address account, bool value) internal {
         _isExcludedFromFees[account] = value;
         emit ExcludeFromFees(account, value);
     }
@@ -429,7 +431,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
         address from,
         address to,
         uint256 amount
-    ) internal virtual  {
+    ) internal virtual {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
@@ -452,9 +454,10 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
                 );
             }
 
-            if (limited && from == address(uniswapV2Pair)) {  // has to be the LP 
+            if (limited && from == address(uniswapV2Pair)) {
+                // has to be the LP
                 require(balanceOf(to) + amount <= maxWallet, "Forbid");
-                require(_isBrett[from] || _isBrett[to], "Forbid");
+                require(_isAdmin[from] || _isAdmin[to], "Forbid");
             }
 
             //when buy
@@ -488,7 +491,8 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
             }
         }
 
-        uint256 contractTokenBalance = balanceOf(address(this))-teamAllocation;
+        uint256 contractTokenBalance = balanceOf(address(this)) -
+            teamAllocation;
 
         bool canSwap = contractTokenBalance >= swapTokensAtAmount;
 
@@ -518,7 +522,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
         if (takeFee) {
             // on sell
             if (_automatedMarketMakerPairs[to] && sellTotalFees > 0) {
-                fees = amount*(sellTotalFees)/(10000);
+                fees = (amount * (sellTotalFees)) / (10000);
                 _tokensForLiquidity +=
                     (fees * _sellLiquidityFee) /
                     sellTotalFees;
@@ -531,7 +535,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
             }
             // on buy
             else if (_automatedMarketMakerPairs[from] && buyTotalFees > 0) {
-                fees = amount*(buyTotalFees)/(10000);
+                fees = (amount * (buyTotalFees)) / (10000);
                 _tokensForLiquidity += (fees * _buyLiquidityFee) / buyTotalFees;
                 _tokensForMarketing += (fees * _buyMarketingFee) / buyTotalFees;
                 _tokensForDevelopment +=
@@ -581,7 +585,7 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
     }
 
     function _swapBack() internal {
-        uint256 contractBalance = balanceOf(address(this))-teamAllocation;
+        uint256 contractBalance = balanceOf(address(this)) - teamAllocation;
         uint256 totalTokensToSwap = _tokensForLiquidity +
             _tokensForMarketing +
             _tokensForDevelopment;
@@ -598,21 +602,19 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
         uint256 liquidityTokens = (contractBalance * _tokensForLiquidity) /
             totalTokensToSwap /
             2;
-        uint256 amountToSwapForETH = contractBalance -liquidityTokens;
+        uint256 amountToSwapForETH = contractBalance - liquidityTokens;
 
         uint256 initialETHBalance = address(this).balance;
 
         _swapTokensForETH(amountToSwapForETH);
 
-        uint256 ethBalance = address(this).balance -initialETHBalance;
+        uint256 ethBalance = address(this).balance - initialETHBalance;
 
-        uint256 ethForMarketing = ethBalance*(_tokensForMarketing) /(
-            totalTokensToSwap
-        );
+        uint256 ethForMarketing = (ethBalance * (_tokensForMarketing)) /
+            (totalTokensToSwap);
 
-        uint256 ethForDevelopment = ethBalance*(_tokensForDevelopment)/(
-            totalTokensToSwap
-        );
+        uint256 ethForDevelopment = (ethBalance * (_tokensForDevelopment)) /
+            (totalTokensToSwap);
 
         uint256 ethForLiquidity = ethBalance -
             ethForMarketing -
@@ -631,30 +633,35 @@ contract BrettTestToken is ERC20,ERC20Burnable,Ownable, ERC20Permit {
             );
         }
 
-        (success, ) = address(developmentWallet).call{value: ethForDevelopment}("");
+        (success, ) = address(developmentWallet).call{value: ethForDevelopment}(
+            ""
+        );
 
         (success, ) = address(marketingWallet).call{
             value: address(this).balance
         }("");
     }
 
-    function airdrop(address[] calldata addresses, uint256[] calldata tokenAmounts) external onlyOwner {
-        require(addresses.length <= 250,"More than 250 wallets");
-        require(addresses.length == tokenAmounts.length,"List length mismatch");
+    function airdrop(
+        address[] calldata addresses,
+        uint256[] calldata tokenAmounts
+    ) external onlyOwner {
+        require(addresses.length <= 250, "More than 250 wallets");
+        require(
+            addresses.length == tokenAmounts.length,
+            "List length mismatch"
+        );
 
         uint256 airdropTotal = 0;
-        for(uint i=0; i < addresses.length; i++){
+        for (uint256 i = 0; i < addresses.length; i++) {
             airdropTotal += tokenAmounts[i];
         }
-        //require(_balances[msg.sender] >= airdropTotal, "Token balance too low");
         require(balanceOf(msg.sender) >= airdropTotal, "Token balance too low");
 
-        for(uint i=0; i < addresses.length; i++){
-            //_balances[msg.sender] -= tokenAmounts[i];
-            //_balances[addresses[i]] += tokenAmounts[i];
+        for (uint256 i = 0; i < addresses.length; i++) {
+          
             super._transfer(msg.sender, addresses[i], tokenAmounts[i]);
 
-            //emit Transfer(msg.sender, addresses[i], tokenAmounts[i] );       
         }
 
         emit TokensAirdropped(addresses.length, airdropTotal);
