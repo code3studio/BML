@@ -85,6 +85,7 @@ const InitForm = () => {
       />
       <Controller
         name="decimal"
+        defaultValue={18}
         control={control}
         render={({ field: { onChange, ...field } }) => (
           <Grid

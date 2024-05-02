@@ -27,7 +27,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GenerateParamType } from "../../../types/generate";
 import { useAccount } from "wagmi";
-import { generateContract } from "../../../services/api";
 import TokenomicsForm from "./TokenomicsForm";
 import Review from "./Review";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -36,6 +35,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import RocketIcon from "@mui/icons-material/Rocket";
 import MintingDialog from "./MintingDialog";
 import SuccessDialog from "./SuccessDialog";
+import PaymentForm from "./payment-form/PaymentForm";
 
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -120,6 +120,7 @@ export default function CustomizedSteppers() {
   const [completed, setCompleted] = React.useState<{
     [k: number]: boolean;
   }>({});
+  const [payment, setPayment] = React.useState<boolean>(false);
   const [info, setInfo] = React.useState<Partial<GenerateParamType>>({
     name: "",
     symbol: "",
@@ -183,60 +184,58 @@ export default function CustomizedSteppers() {
     setActiveStep(0);
     setCompleted({});
   };
-  const defaultValues: Partial<GenerateParamType> = {
-    name: "",
-    symbol: "",
-    decimal: 18,
-    supply: 1000,
-    maxBuy: 1000,
-    initialLP: 1000,
-    mintable: false,
-    totalSupply: 1000000,
-    redistributionTax: 0,
-    liquidityFee: 0,
-    charityFee: 0,
-    marketingFee: 0,
-    burnFee: 0,
-    teamWalletAddress: "",
-    teamDistributionPercentage: 0,
-    unlockTime: "",
-    // liquidity
-  };
+  // const defaultValues: Partial<GenerateParamType> = {
+  //   name: "",
+  //   symbol: "",
+  //   decimal: 18,
+  //   supply: 1000,
+  //   maxBuy: 1000,
+  //   initialLP: 1000,
+  //   mintable: false,
+  //   totalSupply: 1000000,
+  //   redistributionTax: 0,
+  //   liquidityFee: 0,
+  //   charityFee: 0,
+  //   marketingFee: 0,
+  //   burnFee: 0,
+  //   teamWalletAddress: "",
+  //   teamDistributionPercentage: 0,
+  //   unlockTime: dayjs(dayjs().format("YYYY-MM-DDTHH:mm")),
+  //   // liquidity
+  // };
   const schema = z.object({
     name: z.string().nonempty("You must enter token name"),
     symbol: z.string().nonempty("You must enter token symbol"),
-    decimal: z.number(),
-    supply: z.number(),
-    maxBuy: z.number(),
-    initialLP: z.number(),
-    mintable: z.boolean(),
-    redistributionTax: z.number(),
-    liquidityFee: z.number(),
-    charityFee: z.number(),
-    marketingFee: z.number(),
-    burnFee: z.number(),
-    teamWalletAddress: z.string(),
-    teamDistributionPercentage: z.number(),
-    unlockTime: z.string(),
-    totalSupply: z.number(),
   });
   const methods = useForm({
     mode: "onChange",
-    defaultValues,
+    defaultValues: {},
     resolver: zodResolver(schema),
   });
-  const { handleSubmit } = methods;
+  const { handleSubmit, watch, reset } = methods;
+  const form = watch();
   const onSubmit = async (data: Partial<GenerateParamType>) => {
-    data.owner = address;
-    setInfo(data);
+    //@ts-ignore
+    if (form?.unlockTime) {
+      //@ts-ignore
+      form.unlockTime = form.unlockTime.toDate().toLocaleString();
+    }
+    let temp: any = form;
+
+    temp.owner = address ? address : "";
+
+    data.owner = address ? address : "";
+    console.log("temp==", temp);
+    setInfo(temp);
     if (completedSteps() === totalSteps() - 1) {
       try {
-        data.mode = mode;
-        setLoading(true);
-        const res = await generateContract(data as GenerateParamType);
-        setLoading(false);
-        setUrl(res.data.url);
-        setOpen(true);
+        temp.mode = mode;
+        setInfo(temp);
+        setPayment(true);
+        // const res = await generateContract(temp as GenerateParamType);
+        // setLoading(false);
+        // setUrl(res.data.url);
+        // setOpen(true);
       } catch (error) {
         setLoading(false);
         setError("Deploy failed");
@@ -246,23 +245,39 @@ export default function CustomizedSteppers() {
       handleComplete();
     }
   };
+  const handleSuccess = (url: string) => {
+    setLoading(false);
+    setUrl(url);
+    setOpen(true);
+  };
+  const handleError = () => {
+    setLoading(false);
+    setError("Deploy failed");
+  };
+  const handleLoading = () => {
+    setLoading(true);
+  };
+
+  // const handleGenerate = async() => {
+  //   try {
+
+  //   } catch (error) {
+
+  //   }
+  // }
   // const { errors } = formState;
   return (
     <>
       <Stack sx={{ width: "100%" }} spacing={4}>
-        {/* <Stepper alternativeLabel activeStep={1} connector={<QontoConnector />}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper> */}
         <FormControlLabel
           control={
             <Switch
-              onChange={() =>
-                setMode((m) => (m === "advance" ? "basic" : "advance"))
-              }
+              onChange={() => {
+                setCompleted({});
+                setActiveStep(0);
+                reset();
+                setMode((m) => (m === "advance" ? "basic" : "advance"));
+              }}
             />
           }
           label="Mode"
@@ -372,7 +387,7 @@ export default function CustomizedSteppers() {
                       <Button
                         startIcon={<CheckCircleIcon />}
                         variant="contained"
-                        onClick={handleSubmit(onSubmit, handleComplete)}
+                        onClick={handleSubmit(onSubmit)}
                       >
                         Complete
                       </Button>
@@ -385,6 +400,14 @@ export default function CustomizedSteppers() {
       </Stack>
       <MintingDialog open={loading} />
       <SuccessDialog open={open} handleClose={() => setOpen(false)} url={url} />
+      <PaymentForm
+        handleLoading={handleLoading}
+        handleError={handleError}
+        handleSuccess={handleSuccess}
+        info={info}
+        handleClose={() => setPayment(false)}
+        open={payment}
+      />
     </>
   );
 }

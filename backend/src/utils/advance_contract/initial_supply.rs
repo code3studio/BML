@@ -8,7 +8,7 @@ use actix_web::web::Json;
 use crate::model::signature_model::GenerateRequest;
 
 pub fn make_initial_supply_contract(data: Json<GenerateRequest>) -> Result<()> {
-    let mut file = File::create("./src/smart_contract/contracts/MyExample.sol")?;
+    let mut file = File::create("./src/smart_contract/contracts/MyToken.sol")?;
 
     file.write_all(
         b"

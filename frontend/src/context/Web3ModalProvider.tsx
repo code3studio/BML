@@ -2,7 +2,7 @@ import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 
 import { WagmiProvider } from "wagmi";
-import { base, baseSepolia, mainnet, sepolia } from "wagmi/chains";
+import { base, baseSepolia, mainnet, opBNB, sepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 
@@ -20,7 +20,7 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-const chains = [mainnet, sepolia, base, baseSepolia] as const;
+const chains = [mainnet, sepolia, base, baseSepolia, opBNB] as const;
 const config = defaultWagmiConfig({
   chains,
   projectId,

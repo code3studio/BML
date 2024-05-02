@@ -4,15 +4,26 @@ import * as dotenv from "dotenv";
 dotenv.config();
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
-  networks:{
-    sepolia:{
-      url: `https://sepolia.infura.io/v3/${process.env.RPC_KEY}`,
-      accounts:[process.env.PRIVATE_KEY|| ""]
-    }
+  networks: {
+    "base-sepolia": {
+      url: "https://sepolia.base.org",
+      accounts: [process.env.BASE_PRIVATE_KEY || ""],
+      gasPrice: 1000000000,
+    },
   },
-  etherscan:{
-    apiKey:process.env.ETHERSCAN_API_KEY
-  }
+  etherscan: {
+    apiKey: { "base-sepolia": process.env.BASE_SCAN_API_KEY },
+    customChains: [
+      {
+        network: "base-sepolia",
+        chainId: 84532,
+        urls: {
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org",
+        },
+      },
+    ],
+  },
 };
 
 export default config;

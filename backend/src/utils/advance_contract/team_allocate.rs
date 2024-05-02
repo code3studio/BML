@@ -7,8 +7,8 @@ use actix_web::web::Json;
 
 use crate::model::signature_model::GenerateRequest;
 
-pub fn make_team_contract(data:Json<GenerateRequest>) -> Result<()> {
-    let mut file = File::create("./src/smart_contract/contracts/MyExample.sol")?;
+pub fn make_team_contract(data: Json<GenerateRequest>) -> Result<()> {
+    let mut file = File::create("./src/smart_contract/contracts/MyToken.sol")?;
 
     file.write_all(
         b"
@@ -43,7 +43,7 @@ pub fn make_team_contract(data:Json<GenerateRequest>) -> Result<()> {
     Ok(())
 }
 
-fn make_deploy_ts(data:&Json<GenerateRequest>) -> std::io::Result<()> {
+fn make_deploy_ts(data: &Json<GenerateRequest>) -> std::io::Result<()> {
     let mut file = File::create("./src/smart_contract/ignition/modules/Token.ts")?;
 
     file.write_all(
@@ -63,7 +63,10 @@ fn make_deploy_ts(data:&Json<GenerateRequest>) -> std::io::Result<()> {
 
         module.exports = TokenModule;
     "#,
-            data.name, data.symbol, data.owner,data.supply.unwrap_or_else(||10000)
+            data.name,
+            data.symbol,
+            data.owner,
+            data.supply.unwrap_or_else(|| 10000)
         )
         .as_bytes(),
     )?;

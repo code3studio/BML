@@ -47,7 +47,7 @@ const theme: ThemeOptions = {
     // },
   },
   typography: {
-    // fontFamily: "Satoshi-Bold",
+    fontFamily: "Satoshi-Bold",
     h1: {
       fontSize: "96px",
       fontWeight: 900,

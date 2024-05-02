@@ -5,6 +5,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs";
 type Props = {};
 
 const TeamAllocationForm = (_props: Props) => {
@@ -31,7 +32,6 @@ const TeamAllocationForm = (_props: Props) => {
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
               <TextField
-                type="number"
                 label="Team Wallet Address"
                 error={!!errors.teamWalletAddress}
                 helperText={errors?.teamWalletAddress?.message}
@@ -43,9 +43,10 @@ const TeamAllocationForm = (_props: Props) => {
         )}
       />
       <Controller
+        defaultValue={0}
         name="teamDistributionPercentage"
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -64,6 +65,7 @@ const TeamAllocationForm = (_props: Props) => {
                 error={!!errors.teamDistributionPercentage}
                 helperText={errors?.teamDistributionPercentage?.message}
                 {...field}
+                onChange={(e) => Number(e.target.value)}
                 fullWidth
               />
             </Grid>
@@ -72,8 +74,9 @@ const TeamAllocationForm = (_props: Props) => {
       />
       <Controller
         name="unlockTime"
+        defaultValue={dayjs(dayjs().format("YYYY-MM-DDTHH:mm"))}
         control={control}
-        render={({}) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -88,7 +91,11 @@ const TeamAllocationForm = (_props: Props) => {
             <Grid item md={6} sm={12} xs={12}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={["DateTimePicker"]}>
-                  <DateTimePicker label="Basic date time picker" />
+                  <DateTimePicker
+                    {...field}
+                    onChange={(e: any) => onChange(e)}
+                    label="Basic date time picker"
+                  />
                 </DemoContainer>
               </LocalizationProvider>
             </Grid>

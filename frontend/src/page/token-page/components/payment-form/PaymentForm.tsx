@@ -1,0 +1,74 @@
+import { Alert, Dialog, Grid, IconButton } from "@mui/material";
+import CryptoSelect from "./CryptoSelect";
+// import bnb from "../../../../assets/crypto/bnb@2x.png";
+import eth from "../../../../assets/crypto/eth@2x.png";
+import Base from "../../../../assets/crypto/base.png";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { base, mainnet } from "viem/chains";
+import { GenerateParamType } from "../../../../types/generate";
+import { useState } from "react";
+
+type Props = {
+  handleClose: () => void;
+  open: boolean;
+  info: Partial<GenerateParamType>;
+  handleSuccess: (url: string) => void;
+  handleLoading: () => void;
+  handleError: () => void;
+};
+
+const PaymentForm = ({
+  handleClose,
+  open,
+  info,
+  handleSuccess,
+  handleError,
+  handleLoading,
+}: Props) => {
+  const [err, setError] = useState<string>("");
+  const handlePaymentError = (err: string) => {
+    setError(err);
+  };
+  return (
+    <Dialog open={open} PaperProps={{ sx: { p: 4 } }}>
+      {err && <Alert severity="error">{err}</Alert>}
+      <IconButton
+        onClick={handleClose}
+        sx={{ position: "absolute", top: 4, right: 4 }}
+      >
+        <CancelIcon />
+      </IconButton>
+      <Grid container spacing={4}>
+        <Grid item md={6} sm={12} xs={12}>
+          <CryptoSelect
+            handlePaymentError={handlePaymentError}
+            handleError={handleError}
+            handleLoading={handleLoading}
+            handleSuccess={handleSuccess}
+            url={Base}
+            title="1BASE"
+            info={info}
+            chainId={base.id}
+          />
+        </Grid>
+        <Grid item md={6} sm={12} xs={12}>
+          <CryptoSelect
+            handlePaymentError={handlePaymentError}
+            handleError={handleError}
+            handleLoading={handleLoading}
+            handleSuccess={handleSuccess}
+            url={eth}
+            title="1ETH"
+            info={info}
+            chainId={mainnet.id}
+          />
+        </Grid>
+        {/* <Grid item md={4}> */}
+        {/* <CryptoSelect url={sol} title="1SOL" chainId={base.id} /> */}
+        {/* </Grid> */}
+      </Grid>
+    </Dialog>
+  );
+};
+
+export default PaymentForm;

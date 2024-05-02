@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export type GenerateParamType = {
   name: string;
   symbol: string;
@@ -14,7 +16,7 @@ export type GenerateParamType = {
   burnFee: number;
   teamWalletAddress: string;
   teamDistributionPercentage: number;
-  unlockTime: string;
+  unlockTime: Dayjs;
   totalSupply: number;
   mode: "advance" | "basic";
 };

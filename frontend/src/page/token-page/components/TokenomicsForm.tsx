@@ -28,6 +28,7 @@ const TokenomicsForm = (_props: Props) => {
       </div>
       <Controller
         name="supply"
+        defaultValue={1000000}
         control={control}
         render={({ field: { onChange, ...field } }) => (
           <Grid
@@ -58,6 +59,7 @@ const TokenomicsForm = (_props: Props) => {
       />
       <Controller
         name="maxBuy"
+        defaultValue={1000000}
         control={control}
         render={({ field }) => (
           <Grid
@@ -115,6 +117,7 @@ const TokenomicsForm = (_props: Props) => {
       /> */}
       <Controller
         name="mintable"
+        defaultValue={true}
         control={control}
         render={({ field }) => (
           <Grid
@@ -138,6 +141,7 @@ const TokenomicsForm = (_props: Props) => {
           <Controller
             name="totalSupply"
             control={control}
+            defaultValue={1000000}
             render={({ field }) => (
               <Grid
                 className="mt-6"
@@ -170,7 +174,8 @@ const TokenomicsForm = (_props: Props) => {
       <Controller
         name="redistributionTax"
         control={control}
-        render={({ field }) => (
+        defaultValue={0}
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -189,6 +194,7 @@ const TokenomicsForm = (_props: Props) => {
                 error={!!errors.redistributionTax}
                 helperText={errors?.redistributionTax?.message}
                 {...field}
+                onChange={(e) => Number(e.target.value)}
                 fullWidth
               />
             </Grid>
@@ -197,8 +203,9 @@ const TokenomicsForm = (_props: Props) => {
       />
       <Controller
         name="liquidityFee"
+        defaultValue={0}
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -216,6 +223,7 @@ const TokenomicsForm = (_props: Props) => {
                 label="Liquidity Fee"
                 error={!!errors.liquidityFee}
                 helperText={errors?.liquidityFee?.message}
+                onChange={(e) => Number(e.target.value)}
                 {...field}
                 fullWidth
               />
@@ -225,8 +233,9 @@ const TokenomicsForm = (_props: Props) => {
       />
       <Controller
         name="charityFee"
+        defaultValue={0}
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -245,6 +254,7 @@ const TokenomicsForm = (_props: Props) => {
                 error={!!errors.charityFee}
                 helperText={errors?.charityFee?.message}
                 {...field}
+                onChange={(e) => Number(e.target.value)}
                 fullWidth
               />
             </Grid>
@@ -253,8 +263,9 @@ const TokenomicsForm = (_props: Props) => {
       />
       <Controller
         name="marketingFee"
+        defaultValue={0}
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -273,6 +284,7 @@ const TokenomicsForm = (_props: Props) => {
                 error={!!errors.marketingFee}
                 helperText={errors?.marketingFee?.message}
                 {...field}
+                onChange={(e) => Number(e.target.value)}
                 fullWidth
               />
             </Grid>
@@ -281,8 +293,9 @@ const TokenomicsForm = (_props: Props) => {
       />
       <Controller
         name="burnFee"
+        defaultValue={0}
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -300,6 +313,7 @@ const TokenomicsForm = (_props: Props) => {
                 label="Burn Fee"
                 error={!!errors.burnFee}
                 helperText={errors?.burnFee?.message}
+                onChange={(e) => Number(e.target.value)}
                 {...field}
                 fullWidth
               />

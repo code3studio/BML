@@ -2,7 +2,7 @@ use std::{fs, io, process::Command};
 
 use regex::Regex;
 
-pub fn write_script()->String {
+pub fn write_script() -> String {
     // Change directory using current_dir() instead of cd command
     let output = Command::new("cmd")
         .current_dir("./src/smart_contract") // Setting the directory directly
@@ -14,26 +14,28 @@ pub fn write_script()->String {
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
         println!("Output: {}", stdout);
-        let result = Command::new("cmd").current_dir("./src/smart_contract").args(["/C"," echo y | npx hardhat ignition deploy .\\ignition\\modules\\Token.ts --network sepolia --verify
+        let result = Command::new("cmd").current_dir("./src/smart_contract").args(["/C"," echo y | npx hardhat ignition deploy .\\ignition\\modules\\Token.ts --network base-sepolia --verify
         "]).output().expect("msg");
         if result.status.success() {
+            println!(
+                "result:::::::::::::::::{}",
+                String::from_utf8_lossy(&result.stdout)
+            );
 
-            println!("result:::::::::::::::::{}",String::from_utf8_lossy(&result.stdout));
-            
             delete_folder_and_file().unwrap();
-           if let Some(e) = extract_url(&String::from_utf8_lossy(&result.stdout)) {
-            println!("result=={}",e);
-               return e.to_string();
-           } else {
-            return  "deploy is failed ".to_string();
-           }
-        }else {
-            return  "deploy is failed ".to_string();
+            if let Some(e) = extract_url(&String::from_utf8_lossy(&result.stdout)) {
+                println!("result=={}", e);
+                return e.to_string();
+            } else {
+                return "deploy is failed ".to_string();
+            }
+        } else {
+            return "deploy is failed ".to_string();
         }
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
         eprintln!("Error: {}", stderr);
-        return  "deploy is failed ".to_string();
+        return "deploy is failed ".to_string();
     }
 }
 

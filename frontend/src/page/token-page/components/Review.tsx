@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material";
+import { Divider, Grid, Typography } from "@mui/material";
 import { GenerateParamType } from "../../../types/generate";
 
 type Props = {
@@ -16,62 +16,32 @@ const Review = ({ data }: Props) => {
   }
   return (
     <Grid container justifyContent={"center"}>
-      <Grid item md={4}>
-        <Grid
-          container
-          justifyContent={"space-between"}
-          mt={8}
-          alignItems={"center"}
-        >
-          <Typography>Name</Typography>
-          <Typography>{data.name}</Typography>
-        </Grid>
-        <Grid
-          container
-          justifyContent={"space-between"}
-          mt={4}
-          alignItems={"center"}
-        >
-          <Typography>Symbol</Typography>
-          <Typography>{data.symbol}</Typography>
-        </Grid>
-        <Grid
-          container
-          justifyContent={"space-between"}
-          mt={4}
-          alignItems={"center"}
-        >
-          <Typography>Decimal</Typography>
-          <Typography>{data.decimal}</Typography>
-        </Grid>
-        <Grid
-          container
-          justifyContent={"space-between"}
-          mt={4}
-          alignItems={"center"}
-        >
-          <Typography>Supply</Typography>
-          <Typography>{data.supply}</Typography>
-        </Grid>
-        <Grid
-          container
-          justifyContent={"space-between"}
-          mt={4}
-          alignItems={"center"}
-        >
-          <Typography>Max Buy</Typography>
-          <Typography>{data.maxBuy}</Typography>
-        </Grid>
-        <Grid
-          container
-          justifyContent={"space-between"}
-          mt={4}
-          alignItems={"center"}
-        >
-          <Typography>Initial LP</Typography>
-          <Typography>{data.initialLP}</Typography>
-        </Grid>
-        <Grid
+      <Grid item md={4} sm={10} xs={10}>
+        {Object.keys(data).map((item: any, index) => (
+          <>
+            <Grid
+              key={index}
+              container
+              justifyContent={"space-between"}
+              mt={4}
+              alignItems={"center"}
+            >
+              <Typography variant="h6" textTransform={"capitalize"}>
+                {item}
+              </Typography>
+              <Typography variant="h6">
+                {item === "owner"
+                  ? abbreviateString(
+                      data[item as Partial<keyof GenerateParamType>] as string
+                    )
+                  : (data[item as Partial<keyof GenerateParamType>] as any)}
+              </Typography>
+            </Grid>
+            <Divider />
+          </>
+        ))}
+
+        {/* <Grid
           container
           justifyContent={"space-between"}
           mt={4}
@@ -81,7 +51,7 @@ const Review = ({ data }: Props) => {
           <Typography>
             {data.owner ? abbreviateString(data.owner) : ""}
           </Typography>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Grid>
   );
