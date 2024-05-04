@@ -4,7 +4,7 @@ mod services;
 mod utils;
 use actix_cors::Cors;
 use actix_web::web::scope;
-use actix_web::{get, middleware::Logger, web::Data, App, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware::Logger, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::Env;
 use routes::generate::generate;

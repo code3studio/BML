@@ -1,10 +1,10 @@
-import { Alert, Dialog, Grid, IconButton } from "@mui/material";
+import { Alert, Dialog, DialogTitle, Grid, IconButton } from "@mui/material";
 import CryptoSelect from "./CryptoSelect";
 // import bnb from "../../../../assets/crypto/bnb@2x.png";
 import eth from "../../../../assets/crypto/eth@2x.png";
 import Base from "../../../../assets/crypto/base.png";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { base, mainnet } from "viem/chains";
+import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 import { GenerateParamType } from "../../../../types/generate";
 import { useState } from "react";
 
@@ -38,6 +38,7 @@ const PaymentForm = ({
       >
         <CancelIcon />
       </IconButton>
+      <DialogTitle>Payment</DialogTitle>
       <Grid container spacing={4}>
         <Grid item md={6} sm={12} xs={12}>
           <CryptoSelect
@@ -46,9 +47,13 @@ const PaymentForm = ({
             handleLoading={handleLoading}
             handleSuccess={handleSuccess}
             url={Base}
-            title="1BASE"
+            title={`${import.meta.env.VITE_PAYMENT} ETH`}
             info={info}
-            chainId={base.id}
+            chainId={
+              import.meta.env.VITE_MODE === "development"
+                ? baseSepolia.id
+                : base.id
+            }
           />
         </Grid>
         <Grid item md={6} sm={12} xs={12}>
@@ -58,9 +63,13 @@ const PaymentForm = ({
             handleLoading={handleLoading}
             handleSuccess={handleSuccess}
             url={eth}
-            title="1ETH"
+            title={`${import.meta.env.VITE_PAYMENT} ETH`}
             info={info}
-            chainId={mainnet.id}
+            chainId={
+              import.meta.env.VITE_MODE === "development"
+                ? sepolia.id
+                : mainnet.id
+            }
           />
         </Grid>
         {/* <Grid item md={4}> */}

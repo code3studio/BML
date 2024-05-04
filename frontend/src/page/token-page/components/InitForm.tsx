@@ -60,12 +60,12 @@ const InitForm = () => {
           >
             <Grid item md={3} sm={12} xs={12}>
               <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
-                $Symbol
+                Symbol
               </Typography>
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
               <TextField
-                label="$symbol"
+                label="symbol"
                 error={!!errors.symbol}
                 helperText={errors?.symbol?.message}
                 {...field}

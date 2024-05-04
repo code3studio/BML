@@ -209,7 +209,10 @@ export default function CustomizedSteppers() {
   });
   const methods = useForm({
     mode: "onChange",
-    defaultValues: {},
+    defaultValues: {
+      liquidityAdd: true,
+      mintable: false,
+    },
     resolver: zodResolver(schema),
   });
   const { handleSubmit, watch, reset } = methods;

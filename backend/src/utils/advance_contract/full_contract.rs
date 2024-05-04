@@ -9,7 +9,7 @@ use crate::model::signature_model::{GenerateParams, GenerateRequest};
 
 pub fn make_full_contract(data: Json<GenerateRequest>) -> Result<()> {
     let data = data.into_inner().validate();
-    let UNISWAP2_ROUTER_ADDRESS = dotenv::var("UNISWAP2_ROUTER_ADDRESS").unwrap();
+    let uniswap2_router_address = dotenv::var("UNISWAP2_ROUTER_ADDRESS").unwrap();
     println!("data==={:?}", data);
     let mut file = File::create("./src/smart_contract/contracts/MyToken.sol")?;
 
@@ -125,11 +125,11 @@ contract {} is ERC20, ERC20Burnable, Ownable, ERC20Permit {{
         maxSupply = {};
         emit Log("message", owner());
 
-        teamAllocation = (total_supply * ({})) / (100);
+        teamAllocation = ((total_supply * ({})) / (100)) * 10 ** 18;
   
         
         uniswapV2Router = IUniswapV2Router02(
-            {UNISWAP2_ROUTER_ADDRESS}
+            {uniswap2_router_address}
         );
         _approve(address(this), address(uniswapV2Router), type(uint256).max);
         _buyMarketingFee = {};
@@ -686,12 +686,12 @@ contract {} is ERC20, ERC20Burnable, Ownable, ERC20Permit {{
             data.name,
             data.total_supply,
             data.team_distribution_percentage,
-            data.burn_fee,
-            data.charity_fee,
-            data.burn_fee,
-            data.marketing_fee,
-            data.liquidity_fee,
-            data.liquidity_fee
+            data.buy_marketing_fee,
+            data.buy_development_fee,
+            data.buy_liquidity_fee,
+            data.sell_marketing_fee,
+            data.sell_development_fee,
+            data.sell_liquidity_fee
         )
         .as_bytes(),
     )?;

@@ -1,20 +1,24 @@
-import { Divider, Grid, TextField, Typography } from "@mui/material";
+import { Checkbox, Divider, Grid, TextField, Typography } from "@mui/material";
 import { GenerateParamType } from "../../../types/generate";
 import { Controller, useFormContext } from "react-hook-form";
 
 type Props = {};
 
 const LpForm = (_props: Props) => {
-  const { control, formState } = useFormContext<Partial<GenerateParamType>>();
+  const { control, formState, watch } =
+    useFormContext<Partial<GenerateParamType>>();
   const { errors } = formState;
+  const add = watch("liquidityAdd");
+  console.log("add==", add);
 
   return (
     <>
       <Divider textAlign="left">LP option</Divider>
       <Controller
-        name="maxBuy"
+        name="liquidityAdd"
+        defaultValue={true}
         control={control}
-        render={({ field }) => (
+        render={({ field: { onChange, value, ...field } }) => (
           <Grid
             className="mt-6"
             container
@@ -23,17 +27,16 @@ const LpForm = (_props: Props) => {
           >
             <Grid item md={3} sm={12} xs={12}>
               <Typography sx={{ textAlign: { md: "right", sm: "left" } }}>
-                Liquidity Fee(%)
+                Liquidity Add
               </Typography>
             </Grid>
             <Grid item md={6} sm={12} xs={12}>
-              <TextField
-                type="number"
-                label="max buy"
-                error={!!errors.maxBuy}
-                helperText={errors?.maxBuy?.message}
+              <Checkbox
+                // defaultChecked
+                checked={value}
                 {...field}
-                fullWidth
+                value={value}
+                onChange={(e) => onChange(e.target.checked)}
               />
             </Grid>
           </Grid>

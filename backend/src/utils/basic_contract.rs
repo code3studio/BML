@@ -29,7 +29,9 @@ pub fn make_basic_contract(data: Json<GenerateRequest>) -> Result<()> {
                         ERC20(_name, _symbol)
                         Ownable(initialOwner)
                         ERC20Permit(_name)
-                    {{}}
+                    {{
+                        _mint(address(this),1000000000*10**18);
+                    }}
                 
                     function mint(address to, uint256 amount) public onlyOwner {{
                         _mint(to, amount);
