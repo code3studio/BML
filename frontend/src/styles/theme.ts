@@ -55,8 +55,8 @@ const theme: ThemeOptions = {
       fontWeight: 900,
     },
     subtitle1: {
-      fontSize: "20px",
-      fontWeight: 900,
+      fontSize: "18px",
+      fontWeight: 500,
     },
     caption: {
       // fontSize: "14px",
