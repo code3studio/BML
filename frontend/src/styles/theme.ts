@@ -1,4 +1,5 @@
 import { PaletteMode } from "@mui/material";
+import { grey } from "@mui/material/colors";
 import { ThemeOptions, createTheme } from "@mui/material/styles";
 
 const theme: ThemeOptions = {
@@ -13,6 +14,7 @@ const theme: ThemeOptions = {
   },
 
   palette: {
+    // mode: "light",
     background: {
       paper: "#fff",
       default: "#fbfff1",
@@ -47,7 +49,7 @@ const theme: ThemeOptions = {
     // },
   },
   typography: {
-    fontFamily: "Satoshi-Bold",
+    // fontFamily: "Manrope",
     h1: {
       fontSize: "96px",
       fontWeight: 900,
@@ -57,16 +59,19 @@ const theme: ThemeOptions = {
       fontWeight: 900,
     },
     caption: {
-      fontSize: "14px",
-      fontWeight: 700,
+      // fontSize: "14px",
       color: "#93949F",
     },
-    body2: {
+    body1: {
       fontSize: "14px",
-      fontWeight: 700,
+      fontWeight: 400,
+    },
+    body2: {
+      fontSize: "16px",
+      fontWeight: 600,
     },
     h6: {
-      fontWeight: 700,
+      fontWeight: 500,
     },
   },
   components: {
@@ -83,7 +88,7 @@ const theme: ThemeOptions = {
           //   boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
           // //   color: 'white',
           height: 46,
-          padding: "0 30px",
+          padding: "0 1px",
         },
       },
     },
@@ -109,13 +114,25 @@ const theme: ThemeOptions = {
         },
       },
     },
+
     MuiOutlinedInput: {
       styleOverrides: {
-        root: {
-          borderRadius: 16,
+        root: ({ theme }) => ({
+          borderRadius: 10,
+          fontWeight: 500,
+          padding: "8px 16px",
+          boxSizing: "border-box",
+          height: "46px",
+          backgroundColor:
+            theme.palette.mode === "dark" ? grey[700] : grey[200],
+        }),
+
+        notchedOutline: {
+          borderColor: "rgba(69, 72, 81, 0.1) !important",
         },
       },
     },
+
     MuiDivider: {
       styleOverrides: {
         root: {},

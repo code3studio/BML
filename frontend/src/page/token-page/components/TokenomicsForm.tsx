@@ -22,7 +22,7 @@ const TokenomicsForm = (_props: Props) => {
 
   const mintable = watch("mintable");
   console.log("mintable==", mintable);
-  const supply = watch("supply");
+
   const theme = useTheme();
   return (
     <>

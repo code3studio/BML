@@ -1,13 +1,12 @@
-import { Checkbox, Divider, Grid, TextField, Typography } from "@mui/material";
+import { Checkbox, Divider, Grid, Typography } from "@mui/material";
 import { GenerateParamType } from "../../../types/generate";
 import { Controller, useFormContext } from "react-hook-form";
 
 type Props = {};
 
 const LpForm = (_props: Props) => {
-  const { control, formState, watch } =
-    useFormContext<Partial<GenerateParamType>>();
-  const { errors } = formState;
+  const { control, watch } = useFormContext<Partial<GenerateParamType>>();
+
   const add = watch("liquidityAdd");
   console.log("add==", add);
 
