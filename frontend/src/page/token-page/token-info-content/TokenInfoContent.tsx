@@ -141,7 +141,7 @@ const TokenInfoContent = (_props: Props) => {
 
           // decimals: typically 18, like Ethereum
         ],
-        value: parseEther("0.01"),
+        value: parseEther("0.018"),
       });
     } else if (!burn && !fee && !mint) {
       console.log("createStdERC20");
@@ -157,7 +157,7 @@ const TokenInfoContent = (_props: Props) => {
           data.decimals?.toString(),
           // decimals: typically 18, like Ethereum
         ],
-        value: parseEther("0.01"),
+        value: parseEther("0.018"),
       });
     } else {
       console.log("createCustomERC20");
@@ -178,7 +178,7 @@ const TokenInfoContent = (_props: Props) => {
 
           // decimals: typically 18, like Ethereum
         ],
-        value: parseEther("0.01"),
+        value: parseEther("0.018"),
       });
     }
   };
