@@ -12,7 +12,7 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
 import { NETWORK } from "../../../../../constant";
-import { blue, grey } from "@mui/material/colors";
+import { blue, blueGrey, grey } from "@mui/material/colors";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useReadContracts } from "wagmi";
@@ -178,15 +178,61 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
     return (BigInt(number) / 1000000000000000000n).toString();
   }
 
+  const handleCopyText = (address: string) => {
+    navigator.clipboard
+      .writeText(address)
+      .then(() => {
+        console.log("Text copied successfully");
+      })
+      .catch((err) => {
+        console.error("Unable to copy text: ", err);
+      });
+  };
+
+  const handleAddToken = async (
+    tokenAddress: string,
+    tokenSymbol: string,
+    tokenDecimals: number
+  ) => {
+    //@ts-ignore
+    if (window.ethereum) {
+      try {
+        //@ts-ignore
+        const wasAdded = await window.ethereum.request({
+          method: "wallet_watchAsset",
+          params: {
+            type: "ERC20", // Currently, only ERC20 tokens are supported
+            options: {
+              address: tokenAddress,
+              symbol: tokenSymbol,
+              decimals: tokenDecimals,
+              // image: tokenImage,
+            },
+          },
+        });
+
+        if (wasAdded) {
+          console.log("Token added!");
+        } else {
+          console.log("Token addition cancelled.");
+        }
+      } catch (error) {
+        console.error("Error adding token:", error);
+      }
+    } else {
+      console.log("MetaMask is not installed.");
+    }
+  };
+
   return (
     <Root>
       <Box
         position={"relative"}
         padding={2}
-        bgcolor={blue[50]}
+        bgcolor={theme.palette.mode === "dark" ? blueGrey[800] : blue[50]}
         borderRadius={"8px 8px 0px 0px"}
       >
-        <Box display={"flex"} columnGap={2}>
+        <Box display={"flex"} columnGap={2} alignItems={"center"}>
           <Typography
             variant="body2"
             component={"a"}
@@ -202,15 +248,33 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
             }}
           />
           <ContentCopyIcon
+            onClick={() => {
+              handleCopyText(tokenAddress);
+            }}
             fontSize="small"
             sx={{ cursor: "pointer", width: 12 }}
           />
-          <img
+          {tempData && (
+            <Box
+              width={14}
+              height={14}
+              sx={{
+                backgroundImage: `url(${metamask})`,
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                handleAddToken(tokenAddress, tempData[1], tempData[0]);
+              }}
+            />
+          )}
+          {/* <img
             src={metamask}
             alt="metamask"
             width={14}
             style={{ cursor: "pointer" }}
-          />
+          /> */}
         </Box>
         <Box mt={4}>
           <Grid container>
@@ -250,7 +314,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           left={"45%"}
           bottom={-16}
           sx={{ borderRadius: "50%", borderWidth: 1, cursor: "pointer" }}
-          bgcolor={blue[50]}
+          bgcolor={theme.palette.mode === "dark" ? blueGrey[800] : blue[50]}
           borderColor={theme.palette.mode === "light" ? "white" : grey[700]}
           zIndex={1000}
         >
@@ -258,7 +322,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
         </Box>
       </Box>
       <Collapse in={more}>
-        <Box p={4} bgcolor={grey[100]} borderRadius={"0px 0px 8px 8px"}>
+        <Box
+          p={4}
+          bgcolor={theme.palette.mode === "dark" ? grey[700] : grey[100]}
+          borderRadius={"0px 0px 8px 8px"}
+        >
           <Typography variant="caption">Token Name</Typography>
           {/*@ts-ignore*/}
           {tempData && tempData[2] ? (
@@ -282,7 +350,12 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                   window.open(`${NETWORK}address/${creatorAddress}`, "_blank");
                 }}
               />
-              <ContentCopyIcon sx={{ width: 12, cursor: "pointer" }} />
+              <ContentCopyIcon
+                sx={{ width: 12, cursor: "pointer" }}
+                onClick={() => {
+                  handleCopyText(creatorAddress);
+                }}
+              />
             </Box>
           </Box>
           <Box mt={2}>
