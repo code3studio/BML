@@ -1,7 +1,15 @@
-use actix_web::{post, web::Json, Error, HttpResponse};
+use actix_web::{
+    get, post, put,
+    web::{Data, Json, Path},
+    Error, HttpResponse, Responder,
+};
 
 use crate::{
-    model::signature_model::{GenerateRequest, GenerateResponse},
+    model::{
+        signature_model::{GenerateRequest, GenerateResponse},
+        user_tokens_model::{UserTokens, UserTokensRequest},
+    },
+    services::db::Database,
     utils::generate_contract::generate_contract,
 };
 
@@ -26,4 +34,40 @@ pub async fn generate(req: Json<GenerateRequest>) -> Result<HttpResponse, Error>
         }
     }
     // Ok(HttpResponse::Ok().json("success"))
+}
+
+#[post("/create")]
+pub async fn create(db: Data<Database>, req: Json<UserTokensRequest>) -> HttpResponse {
+    println!("req={:?} ", req);
+    match db
+        .create_user_tokens(
+            UserTokens::try_from(UserTokensRequest {
+                token_address: req.token_address.clone(),
+                creator_address: req.creator_address.clone(),
+                token_type: req.token_type.clone(),
+            })
+            .expect("Error converting TokenRequest to Token"),
+        )
+        .await
+    {
+        Ok(tokens) => HttpResponse::Ok().json(tokens),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+}
+
+#[get("/get/{creator_address}")]
+pub async fn get_user_token(db: Data<Database>, path: Path<String>) -> impl Responder {
+    let creator_address = path.into_inner();
+    match db.get_user_tokens(creator_address).await {
+        Ok(result) => HttpResponse::Ok().json(result),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+}
+#[get("/get_count")]
+pub async fn get_count(db: Data<Database>) -> impl Responder {
+    
+    match db.get_counts().await {
+        Ok(result) => HttpResponse::Ok().json(result),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
 }

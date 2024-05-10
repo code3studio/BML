@@ -22,3 +22,14 @@ export type GenerateParamType = {
   mode: "advance" | "basic";
   liquidityAdd: boolean;
 };
+
+export type CreateTokenType = {
+  tokenAddress: string;
+  creatorAddress: string;
+  tokenType: "basic" | "custom" | "custom_mint";
+};
+export type CreateTokenResponseType = {
+  tokenAddress: string;
+  creatorAddress: string;
+  token_type: "basic" | "custom" | "custom_mint";
+};

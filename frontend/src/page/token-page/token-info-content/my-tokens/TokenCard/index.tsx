@@ -15,52 +15,147 @@ import { NETWORK } from "../../../../../constant";
 import { blue, grey } from "@mui/material/colors";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useAccount, useReadContract } from "wagmi";
-import abi from "../../../../../smart_contract/customer_token.json";
+import { useReadContracts } from "wagmi";
+import custom_abi from "../../../../../smart_contract/customer_token.json";
+import std_abi from "../../../../../smart_contract/std_token.json";
+import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
+import { CreateTokenType } from "../../../../../types/generate";
 type Props = {
   tokenAddress: string;
   creatorAddress: string;
-  tokenSymbol: string;
-  totalSupply: string;
-  tokenName: string;
-  burnRate: string;
+  type: CreateTokenType["tokenType"];
 };
 
 const Root = styled(Box)(() => ({
   borderRadius: 6,
 }));
-const TokenCard = ({ tokenAddress, burnRate }: Props) => {
+const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   const theme = useTheme();
   const [more, setMore] = useState<boolean>(false);
-  const { address } = useAccount();
+  let tempData;
+  if (type === "basic") {
+    const { data } = useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: tokenAddress as any,
+          abi: std_abi,
+          functionName: "decimals",
+        },
+        {
+          address: tokenAddress as any,
+          abi: std_abi,
+          functionName: "symbol",
+        },
+        {
+          address: tokenAddress as any,
+          abi: std_abi,
+          functionName: "name",
+        },
+        {
+          address: tokenAddress as any,
+          abi: std_abi,
+          functionName: "totalSupply",
+        },
+        {
+          address: tokenAddress as any,
+          abi: std_abi,
+          functionName: "balanceOf",
+          args: [creatorAddress],
+        },
+      ],
+    });
+    tempData = data;
+  }
+  if (type === "custom") {
+    const { data } = useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "decimals",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "symbol",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "name",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "totalSupply",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "balanceOf",
+          args: [creatorAddress],
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "tradeBurnRatio",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "tradeFeeRatio",
+        },
+      ],
+    });
+    tempData = data;
+  }
+  if (type === "custom_mint") {
+    const { data } = useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "decimals",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "symbol",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "name",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "totalSupply",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "balanceOf",
+          args: [creatorAddress],
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "tradeBurnRatio",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "tradeFeeRatio",
+        },
+      ],
+    });
+    tempData = data;
+  }
 
-  const { data: balance, error } = useReadContract({
-    address: tokenAddress as any,
-    abi,
-    functionName: "balanceOf",
-    args: [address],
-  });
-  const { data: creatorAddress } = useReadContract({
-    address: tokenAddress as any,
-    abi,
-    functionName: "_OWNER_",
-  });
-  const { data: tokenName } = useReadContract({
-    address: tokenAddress as any,
-    abi,
-    functionName: "name",
-  });
-  const { data: tokenSymbol } = useReadContract({
-    address: tokenAddress as any,
-    abi,
-    functionName: "symbol",
-  });
-  const { data: totalSupply } = useReadContract({
-    address: tokenAddress as any,
-    abi,
-    functionName: "totalSupply",
-  });
-  console.log("error", error, creatorAddress);
   function abbreviateString(str: string, maxLength = 5) {
     if (str.length <= maxLength) {
       return str; //
@@ -121,8 +216,8 @@ const TokenCard = ({ tokenAddress, burnRate }: Props) => {
           <Grid container>
             <Grid item xs={6}>
               <Box>
-                {tokenSymbol ? (
-                  <Typography variant="h4">{tokenSymbol as string}</Typography>
+                {tempData && tempData[1] ? (
+                  <Typography variant="h4">{tempData[1] as string}</Typography>
                 ) : (
                   <Skeleton width={80} component={"h4"} />
                 )}
@@ -131,9 +226,9 @@ const TokenCard = ({ tokenAddress, burnRate }: Props) => {
             </Grid>
             <Grid item xs={6}>
               <Box>
-                {totalSupply ? (
+                {tempData && tempData[3] ? (
                   <Typography variant="h4">
-                    {formatNumber(Number(processBigint(totalSupply as bigint)))}
+                    {formatNumber(Number(processBigint(tempData[3] as bigint)))}
                   </Typography>
                 ) : (
                   <Skeleton width={80} component={"h4"} />
@@ -166,8 +261,10 @@ const TokenCard = ({ tokenAddress, burnRate }: Props) => {
         <Box p={4} bgcolor={grey[100]} borderRadius={"0px 0px 8px 8px"}>
           <Typography variant="caption">Token Name</Typography>
           {/*@ts-ignore*/}
-          {tokenName ? (
-            <Typography variant="subtitle1">{tokenName.toString()}</Typography>
+          {tempData && tempData[2] ? (
+            <Typography variant="subtitle1">
+              {tempData[2].toString()}
+            </Typography>
           ) : (
             <Skeleton variant="text" width={40} />
           )}
@@ -207,12 +304,33 @@ const TokenCard = ({ tokenAddress, burnRate }: Props) => {
             <Typography variant="caption">Balance</Typography>
             <Typography variant="subtitle1">
               {/*@ts-ignore*/}
-              {balance ? processBigint(balance as bigint) : 0}
+              {tempData && tempData[4]
+                ? processBigint(tempData[4] as bigint)
+                : 0}
             </Typography>
           </Box>
           <Box mt={2}>
             <Typography variant="caption">Special Features</Typography>
-            <Typography variant="subtitle1">Burn {burnRate} %</Typography>
+            {(tempData && tempData[5]) || (tempData && tempData[6]) ? (
+              <Grid container columnGap={3}>
+                {tempData && tempData[5] ? (
+                  <Typography variant="subtitle1">
+                    Burn {(Number(tempData[5]) / 100).toString()} %
+                  </Typography>
+                ) : (
+                  ""
+                )}
+                {tempData && tempData[6] ? (
+                  <Typography variant="subtitle1">
+                    Fee {(Number(tempData[6]) / 100).toString()} %
+                  </Typography>
+                ) : (
+                  ""
+                )}
+              </Grid>
+            ) : (
+              <Typography variant="subtitle1"> No </Typography>
+            )}
           </Box>
         </Box>
       </Collapse>

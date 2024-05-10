@@ -16,15 +16,13 @@ import {
   styled,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import abi from "../../../smart_contract/template.json";
 //@ts-ignore
-import _ from "lodash";
+import _, { result } from "lodash";
 import {
   useAccount,
   useWaitForTransactionReceipt,
@@ -32,6 +30,8 @@ import {
 } from "wagmi";
 import { parseEther } from "viem";
 import MyTokens from "./my-tokens";
+import { createContract, getTokens } from "../../../services/api";
+import { CreateTokenResponseType } from "../../../types/generate";
 
 type Props = {};
 
@@ -76,10 +76,10 @@ const FormRoot = styled(Paper)(() => ({
 const TokenInfoContent = (_props: Props) => {
   const { data: hash, writeContract, error } = useWriteContract();
   const { address } = useAccount();
-  const [more, setMore] = useState<boolean>(false);
   const [burn, setBurn] = useState<boolean>(false);
   const [fee, setFee] = useState<boolean>(false);
   const [mint, setMint] = useState<boolean>(false);
+  const [type, setType] = useState<"basic" | "custom" | "custom_mint">("basic");
   const [schema, setSchema] = useState(
     z.object({
       supply: z.number(),
@@ -90,6 +90,7 @@ const TokenInfoContent = (_props: Props) => {
       tradingFee: z.number().optional(),
     })
   );
+  const [tokens, setTokens] = useState<CreateTokenResponseType[]>([]);
 
   // Update the schema when checkbox states change
   useEffect(() => {
@@ -117,13 +118,14 @@ const TokenInfoContent = (_props: Props) => {
     },
   });
 
-  const { handleSubmit, control, formState, setValue } = methods;
+  const { handleSubmit, control, formState, setValue, reset } = methods;
   const { dirtyFields, isValid } = formState;
 
   const onSubmit = async (data: IData) => {
     console.log("data==", data, hash);
     if (burn && fee && mint) {
       console.log("createCustomMintableERC20");
+      setType("custom_mint");
       writeContract({
         address: "0x7D8E447c6f5bC6FD55cdF67157388b28027Ab01D",
         abi,
@@ -143,6 +145,7 @@ const TokenInfoContent = (_props: Props) => {
       });
     } else if (!burn && !fee && !mint) {
       console.log("createStdERC20");
+      setType("basic");
       writeContract({
         address: "0x7D8E447c6f5bC6FD55cdF67157388b28027Ab01D",
         abi,
@@ -158,6 +161,8 @@ const TokenInfoContent = (_props: Props) => {
       });
     } else {
       console.log("createCustomERC20");
+      setType("custom");
+
       writeContract({
         address: "0x7D8E447c6f5bC6FD55cdF67157388b28027Ab01D",
         abi,
@@ -187,6 +192,53 @@ const TokenInfoContent = (_props: Props) => {
   });
   console.log("result===", data, isConfirmed, isConfirming, error);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (data?.logs[0].address && isConfirmed && address) {
+        try {
+          await createContract({
+            tokenAddress: data.logs[0].address as string,
+            creatorAddress: address as string,
+            tokenType: type,
+          });
+          reset();
+          //@ts-ignore
+          setTokens([
+            ...tokens,
+            {
+              token_type: type,
+              tokenAddress: data.logs[0].address,
+              creatorAddress: address,
+            },
+          ]);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+
+    fetchData(); // Call the async function immediately
+  }, [data?.logs[0].address, isConfirmed, type, address, reset]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (address) {
+        getUserTokens(address);
+      } else {
+        setTokens([]);
+      }
+    };
+    fetchData();
+  }, [address]);
+
+  const getUserTokens = async (address: string) => {
+    try {
+      let res = await getTokens(address);
+      setTokens(res.data as CreateTokenResponseType[]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <FormProvider {...methods}>
       <FormRoot>
@@ -225,7 +277,7 @@ const TokenInfoContent = (_props: Props) => {
                   />
                 )}
               />
-              <Box
+              {/* <Box
                 display={"flex"}
                 alignItems={"center"}
                 justifyContent={"flex-end"}
@@ -234,38 +286,38 @@ const TokenInfoContent = (_props: Props) => {
               >
                 <Typography>More</Typography>
                 {more ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-              </Box>
-              <Collapse in={more}>
-                <Typography sx={{ mt: 2 }}>Token Name</Typography>
+              </Box> */}
+              {/* <Collapse in={more}> */}
+              <Typography sx={{ mt: 2 }}>Token Name</Typography>
 
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      sx={{ mt: 1 }}
-                      placeholder="1-64 Characters"
-                    />
-                  )}
-                />
-                <Typography sx={{ mt: 2 }}>Decimals</Typography>
-                <Controller
-                  name="decimals"
-                  control={control}
-                  render={({ field: { onChange, ...field } }) => (
-                    <TextField
-                      onChange={(e) => onChange(Number(e.target.value))}
-                      type="number"
-                      {...field}
-                      fullWidth
-                      sx={{ mt: 1 }}
-                      placeholder="number"
-                    />
-                  )}
-                />
-              </Collapse>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ mt: 1 }}
+                    placeholder="1-64 Characters"
+                  />
+                )}
+              />
+              <Typography sx={{ mt: 2 }}>Decimals</Typography>
+              <Controller
+                name="decimals"
+                control={control}
+                render={({ field: { onChange, ...field } }) => (
+                  <TextField
+                    onChange={(e) => onChange(Number(e.target.value))}
+                    type="number"
+                    {...field}
+                    fullWidth
+                    sx={{ mt: 1 }}
+                    placeholder="number"
+                  />
+                )}
+              />
+              {/* </Collapse> */}
 
               <Box mt={4}>
                 <Typography variant="h6">Special Features</Typography>
@@ -445,9 +497,7 @@ const TokenInfoContent = (_props: Props) => {
           </Box>
         </form>
       </FormRoot>
-      {data?.logs[0].address && (
-        <MyTokens tokenAddress={data?.logs[0].address} />
-      )}
+      {tokens.length > 0 && <MyTokens tokens={tokens} />}
     </FormProvider>
   );
 };
