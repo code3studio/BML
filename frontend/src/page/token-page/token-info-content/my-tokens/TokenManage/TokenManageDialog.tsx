@@ -11,10 +11,15 @@ import {
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import React, { useEffect, useState } from "react";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import custom_abi from "../../../../../smart_contract/customer_token.json";
 import std_abi from "../../../../../smart_contract/std_token.json";
 import custom_liquidity_abi from "../../../../../smart_contract/custom_liquidity_token.json";
+import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
 import { parseEther } from "viem";
 import loadingIcon from "../../../../../assets/loading.png";
 
@@ -54,6 +59,7 @@ const TokenManageDialog = ({
   const [ethAmount, setEthAmount] = useState<number>(0);
   const [burnAmount, setBurnAmount] = useState<number>(0);
   const [mintAmount, setMintAmount] = useState<number>(0);
+  const { address } = useAccount();
   useEffect(() => {
     setBurnRatio(burn);
     setFee(feeRatio);
@@ -85,6 +91,15 @@ const TokenManageDialog = ({
       functionName: "addLiquidity",
       args: [tokenAmount, ethAmount],
       //   value: (ethAmount),
+    });
+  };
+
+  const handleMint = async () => {
+    writeContract({
+      address: manageAddress as any,
+      abi: custom_mint_abi,
+      functionName: "mint",
+      args: [address, parseEther(mintAmount.toString())],
     });
   };
   const {
@@ -206,7 +221,7 @@ const TokenManageDialog = ({
                 />
               </Grid>
               <Grid item md={6}>
-                <Button fullWidth variant="contained">
+                <Button onClick={handleMint} fullWidth variant="contained">
                   Mint
                 </Button>
               </Grid>
