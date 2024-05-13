@@ -13,6 +13,11 @@
         "name": "customMintableErc20Template",
         "type": "address"
       },
+      {
+        "internalType": "address",
+        "name": "customLiquidityErc20Template",
+        "type": "address"
+      },
       { "internalType": "uint256", "name": "createFee", "type": "uint256" }
     ],
     "stateMutability": "nonpayable",
@@ -29,6 +34,19 @@
       }
     ],
     "name": "ChangeCreateFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newCustomLiquidityTemplate",
+        "type": "address"
+      }
+    ],
+    "name": "ChangeCustomLiquidityTemplate",
     "type": "event"
   },
   {
@@ -176,6 +194,13 @@
   },
   {
     "inputs": [],
+    "name": "_CUSTOM_LIQUIDITY_TEMPLATE",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "_CUSTOM_MINTABLE_ERC20_TEMPLATE_",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
@@ -198,6 +223,16 @@
   {
     "inputs": [],
     "name": "_OWNER_",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "_USER_CUSTOM_LIQUIDITY_REGISTRY_",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
@@ -259,12 +294,27 @@
         "name": "tradeBurnRatio",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "tradeFeeRatio", "type": "uint256" },
-      { "internalType": "address", "name": "teamAccount", "type": "address" }
+      { "internalType": "uint256", "name": "tradeFeeRatio", "type": "uint256" }
     ],
     "name": "createCustomERC20",
     "outputs": [
       { "internalType": "address", "name": "newCustomERC20", "type": "address" }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "symbol", "type": "string" },
+      { "internalType": "uint256", "name": "decimals", "type": "uint256" },
+      { "internalType": "address", "name": "teamAddress", "type": "address" },
+      { "internalType": "uint256[]", "name": "ratio", "type": "uint256[]" }
+    ],
+    "name": "createCustomLiquidityERC20",
+    "outputs": [
+      { "internalType": "address", "name": "newERC20", "type": "address" }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -280,8 +330,7 @@
         "name": "tradeBurnRatio",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "tradeFeeRatio", "type": "uint256" },
-      { "internalType": "address", "name": "teamAccount", "type": "address" }
+      { "internalType": "uint256", "name": "tradeFeeRatio", "type": "uint256" }
     ],
     "name": "createCustomMintableERC20",
     "outputs": [
@@ -335,6 +384,19 @@
       { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newCustomLiquidityTemplate",
+        "type": "address"
+      }
+    ],
+    "name": "updateCustomLiquidityTemplate",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

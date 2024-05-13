@@ -30,6 +30,7 @@ pub enum TokenType {
     Custom,
 
     CustomMint,
+    LiqMint
 }
 
 impl TryFrom<UserTokensRequest> for UserTokens {

@@ -32,6 +32,7 @@ import { parseEther } from "viem";
 import MyTokens from "./my-tokens";
 import { createContract, getTokens } from "../../../services/api";
 import { CreateTokenResponseType } from "../../../types/generate";
+import { CONTRACT_ADDRESS, SERVICE_FEE } from "../../../constant";
 
 type Props = {};
 
@@ -42,6 +43,9 @@ interface IData {
   supply: number;
   burnRate?: number;
   tradingFee?: number;
+  teamAddress?: string;
+  teamAllocationPercentage?: number;
+  duration?: number;
 }
 
 const Root = styled(Box)(() => ({
@@ -79,7 +83,11 @@ const TokenInfoContent = (_props: Props) => {
   const [burn, setBurn] = useState<boolean>(false);
   const [fee, setFee] = useState<boolean>(false);
   const [mint, setMint] = useState<boolean>(false);
-  const [type, setType] = useState<"basic" | "custom" | "custom_mint">("basic");
+  const [team, setTeam] = useState<boolean>(false);
+  const [liq, setLiq] = useState<boolean>(false);
+  const [type, setType] = useState<
+    "basic" | "custom" | "custom_mint" | "liq_mint"
+  >("basic");
   const [schema, setSchema] = useState(
     z.object({
       supply: z.number(),
@@ -88,6 +96,9 @@ const TokenInfoContent = (_props: Props) => {
       decimals: z.number().optional(),
       burnRate: z.number().optional(),
       tradingFee: z.number().optional(),
+      teamAddress: z.string().optional(),
+      teamAllocationPercentage: z.number().optional(),
+      duration: z.number().optional(),
     })
   );
   const [tokens, setTokens] = useState<CreateTokenResponseType[]>([]);
@@ -101,9 +112,12 @@ const TokenInfoContent = (_props: Props) => {
       decimals: z.number().optional(),
       burnRate: burn ? z.number() : z.number().optional(),
       tradingFee: fee ? z.number() : z.number().optional(),
+      teamAddress: z.string().optional(),
+      teamAllocationPercentage: z.number().optional(),
+      duration: z.number().optional(),
     });
     setSchema(newSchema as any);
-  }, [burn, fee]);
+  }, [burn, fee, team]);
 
   const methods = useForm<IData>({
     mode: "onChange",
@@ -115,6 +129,9 @@ const TokenInfoContent = (_props: Props) => {
       supply: NaN,
       burnRate: 0,
       tradingFee: 0,
+      teamAddress: "",
+      teamAllocationPercentage: 0,
+      duration: 0,
     },
   });
 
@@ -124,62 +141,153 @@ const TokenInfoContent = (_props: Props) => {
   const onSubmit = async (data: IData) => {
     console.log("data==", data, hash);
     if (burn && fee && mint) {
-      console.log("createCustomMintableERC20");
-      setType("custom_mint");
-      writeContract({
-        address: "0x7D8E447c6f5bC6FD55cdF67157388b28027Ab01D",
-        abi,
-        functionName: "createCustomMintableERC20",
-        args: [
-          parseEther(data.supply.toString()), // totalSupply: 100 million tokens
-          data.name ? data.name : data.symbol, // name: 'ExampleToken'
-          data.symbol, // symbol: 'EXM'
-          data.decimals?.toString(),
-          (data.burnRate ? data.burnRate * 100 : 0).toString(),
-          (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
-          address,
+      if (liq || team) {
+        let durationTime =
+          Number(data.duration ? data.duration : 0) * 60 * 60 * 24;
+        console.log("liquidityCustomERC20");
+        setType("liq_mint");
+        writeContract({
+          address: CONTRACT_ADDRESS,
+          abi,
+          functionName: "createCustomLiquidityERC20",
+          args: [
+            data.supply.toString(),
+            data.name ? data.name : data.symbol, // name: 'ExampleToken'
+            data.symbol, // symbol: 'EXM'
+            data.decimals?.toString(),
+            data.teamAddress ? data.teamAddress : address,
+            [
+              (data.burnRate ? data.burnRate * 100 : 0).toString(),
+              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.teamAllocationPercentage
+                ? data.teamAllocationPercentage
+                : 0
+              ).toString(),
+              durationTime,
+            ],
+          ],
+          value: parseEther(SERVICE_FEE),
+        });
+        return 0;
+      } else {
+        console.log("createCustomMintableERC20");
+        setType("custom_mint");
+        writeContract({
+          address: CONTRACT_ADDRESS,
+          abi,
+          functionName: "createCustomMintableERC20",
+          args: [
+            data.supply.toString(), // totalSupply: 100 million tokens
+            data.name ? data.name : data.symbol, // name: 'ExampleToken'
+            data.symbol, // symbol: 'EXM'
+            data.decimals?.toString(),
+            (data.burnRate ? data.burnRate * 100 : 0).toString(),
+            (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
 
-          // decimals: typically 18, like Ethereum
-        ],
-        value: parseEther("0.018"),
-      });
+            // decimals: typically 18, like Ethereum
+          ],
+          value: parseEther(SERVICE_FEE),
+        });
+        return 0;
+      }
     } else if (!burn && !fee && !mint) {
-      console.log("createStdERC20");
-      setType("basic");
-      writeContract({
-        address: "0x7D8E447c6f5bC6FD55cdF67157388b28027Ab01D",
-        abi,
-        functionName: "createStdERC20",
-        args: [
-          parseEther(data.supply.toString()), // totalSupply: 100 million tokens
-          data.name ? data.name : data.symbol, // name: 'ExampleToken'
-          data.symbol, // symbol: 'EXM'
-          data.decimals?.toString(),
-          // decimals: typically 18, like Ethereum
-        ],
-        value: parseEther("0.018"),
-      });
+      if (liq || team) {
+        let durationTime =
+          Number(data.duration ? data.duration : 0) * 60 * 60 * 24;
+        console.log("liquidityCustomERC20");
+        setType("liq_mint");
+        writeContract({
+          address: CONTRACT_ADDRESS,
+          abi,
+          functionName: "createCustomLiquidityERC20",
+          args: [
+            data.supply.toString(),
+            data.name ? data.name : data.symbol, // name: 'ExampleToken'
+            data.symbol, // symbol: 'EXM'
+            data.decimals?.toString(),
+            data.teamAddress ? data.teamAddress : address,
+            [
+              (data.burnRate ? data.burnRate * 100 : 0).toString(),
+              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.teamAllocationPercentage
+                ? data.teamAllocationPercentage
+                : 0
+              ).toString(),
+              durationTime,
+            ],
+          ],
+          value: parseEther(SERVICE_FEE),
+        });
+        return 0;
+      } else {
+        console.log("createStdERC20");
+        setType("basic");
+        writeContract({
+          address: CONTRACT_ADDRESS,
+          abi,
+          functionName: "createStdERC20",
+          args: [
+            parseEther(data.supply.toString()), // TODO: totalSupply:remove parseEther
+            data.name ? data.name : data.symbol, // name: 'ExampleToken'
+            data.symbol, // symbol: 'EXM'
+            data.decimals?.toString(),
+            // decimals: typically 18, like Ethereum
+          ],
+          value: parseEther(SERVICE_FEE),
+        });
+        return 0;
+      }
     } else {
-      console.log("createCustomERC20");
-      setType("custom");
+      if (liq || team) {
+        let durationTime =
+          Number(data.duration ? data.duration : 0) * 60 * 60 * 24;
+        console.log("liquidityCustomERC20");
+        setType("liq_mint");
+        writeContract({
+          address: CONTRACT_ADDRESS,
+          abi,
+          functionName: "createCustomLiquidityERC20",
+          args: [
+            data.supply.toString(),
+            data.name ? data.name : data.symbol, // name: 'ExampleToken'
+            data.symbol, // symbol: 'EXM'
+            data.decimals?.toString(),
+            data.teamAddress ? data.teamAddress : address,
+            [
+              (data.burnRate ? data.burnRate * 100 : 0).toString(),
+              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.teamAllocationPercentage
+                ? data.teamAllocationPercentage
+                : 0
+              ).toString(),
+              durationTime,
+            ],
+          ],
+          value: parseEther(SERVICE_FEE),
+        });
+        return 0;
+      } else {
+        console.log("createCustomERC20");
+        setType("custom");
 
-      writeContract({
-        address: "0x7D8E447c6f5bC6FD55cdF67157388b28027Ab01D",
-        abi,
-        functionName: "createCustomERC20",
-        args: [
-          parseEther(data.supply.toString()), // totalSupply: 100 million tokens
-          data.name ? data.name : data.symbol, // name: 'ExampleToken'
-          data.symbol, // symbol: 'EXM'
-          data.decimals?.toString(),
-          (data.burnRate ? data.burnRate * 100 : 0).toString(),
-          (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
-          address,
+        writeContract({
+          address: CONTRACT_ADDRESS,
+          abi,
+          functionName: "createCustomERC20",
+          args: [
+            data.supply.toString(), // totalSupply: 100 million tokens
+            data.name ? data.name : data.symbol, // name: 'ExampleToken'
+            data.symbol, // symbol: 'EXM'
+            data.decimals?.toString(),
+            (data.burnRate ? data.burnRate * 100 : 0).toString(),
+            (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
 
-          // decimals: typically 18, like Ethereum
-        ],
-        value: parseEther("0.018"),
-      });
+            // decimals: typically 18, like Ethereum
+          ],
+          value: parseEther("0.018"),
+        });
+        return 0;
+      }
     }
   };
 
@@ -359,6 +467,24 @@ const TokenInfoContent = (_props: Props) => {
                     }
                     label="Supports Supply Increase"
                   />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={team}
+                        onChange={(e) => setTeam(e.target.checked)}
+                      />
+                    }
+                    label="Team Allocation"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={liq}
+                        onChange={(e) => setLiq(e.target.checked)}
+                      />
+                    }
+                    label="Liquidity feature"
+                  />
                 </FormGroup>
                 {/* {burn ? ( */}
                 <Collapse in={burn}>
@@ -452,6 +578,93 @@ const TokenInfoContent = (_props: Props) => {
                     </Grid>
                   </BoxRoot>
                 </Collapse>
+                <Collapse in={team}>
+                  <BoxRoot>
+                    <Grid container alignItems={"center"}>
+                      <Grid item xs>
+                        <Typography>Team Allocation:</Typography>
+                        <Typography variant="caption">
+                          A percentage of tokens will be allocated to Team
+                          Wallet
+                        </Typography>
+                      </Grid>
+                      <Grid item xs="auto">
+                        <Grid container flexDirection={"column"} rowGap={2}>
+                          <Controller
+                            name="teamAddress"
+                            control={control}
+                            render={({ field }) => (
+                              <>
+                                <PercentageText
+                                  label="Team Wallet address"
+                                  placeholder={
+                                    address || "0x1234567890abcdefghigklmn"
+                                  }
+                                  {...field}
+                                />
+                              </>
+                            )}
+                          />
+                          <Controller
+                            name="teamAllocationPercentage"
+                            control={control}
+                            render={({ field: { onChange, ...field } }) => (
+                              <PercentageText
+                                type="number"
+                                onChange={(e) =>
+                                  onChange(Number(e.target.value))
+                                }
+                                {...field}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end">
+                                      %
+                                    </InputAdornment>
+                                  ),
+                                }}
+                              />
+                            )}
+                          />
+                          <Controller
+                            name="duration"
+                            control={control}
+                            render={({ field: { onChange, ...field } }) => (
+                              <PercentageText
+                                type="number"
+                                label="Vesting Duration"
+                                onChange={(e) =>
+                                  onChange(Number(e.target.value))
+                                }
+                                {...field}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end">
+                                      days
+                                    </InputAdornment>
+                                  ),
+                                }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </BoxRoot>
+                </Collapse>
+                <Collapse in={liq}>
+                  <BoxRoot>
+                    <Grid container alignItems={"center"}>
+                      <Grid item xs>
+                        <Typography>Liquidity Management Option</Typography>
+                        <Typography variant="caption">
+                          You can add and remove liquidity with ETH for your
+                          token
+                        </Typography>
+                      </Grid>
+                      <Grid item xs="auto"></Grid>
+                    </Grid>
+                  </BoxRoot>
+                </Collapse>
               </Box>
             </Root>
           </div>
@@ -471,7 +684,7 @@ const TokenInfoContent = (_props: Props) => {
                 variant="body2"
               >
                 {" "}
-                Service Fees 0.002 ETH
+                Service Fees {SERVICE_FEE} ETH
               </Typography>
             </Box>
 

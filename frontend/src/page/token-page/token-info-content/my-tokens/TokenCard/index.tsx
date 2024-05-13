@@ -3,6 +3,7 @@ import {
   Collapse,
   Grid,
   Skeleton,
+  Tooltip,
   Typography,
   styled,
   useTheme,
@@ -19,7 +20,11 @@ import { useReadContracts } from "wagmi";
 import custom_abi from "../../../../../smart_contract/customer_token.json";
 import std_abi from "../../../../../smart_contract/std_token.json";
 import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
+import custom_liquidity_abi from "../../../../../smart_contract/custom_liquidity_token.json";
 import { CreateTokenType } from "../../../../../types/generate";
+import SettingsIcon from "@mui/icons-material/Settings";
+import TokenManageDialog from "../TokenManage/TokenManageDialog";
+
 type Props = {
   tokenAddress: string;
   creatorAddress: string;
@@ -32,6 +37,13 @@ const Root = styled(Box)(() => ({
 const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   const theme = useTheme();
   const [more, setMore] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [manageAddress, setManageAddress] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [symbol, setSymbol] = useState<string>("");
+  const [tokenType, setTokenType] = useState<
+    "basic" | "custom" | "custom_mint" | "liq_mint"
+  >("basic");
   let tempData;
   if (type === "basic") {
     const { data } = useReadContracts({
@@ -155,6 +167,60 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
     });
     tempData = data;
   }
+  if (type === "liq_mint") {
+    const { data } = useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "decimals",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "symbol",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "name",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "totalSupply",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "balanceOf",
+          args: [creatorAddress],
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "tradeBurnRatio",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "tradeFeeRatio",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "teamAddress",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "teamAllocation",
+        },
+      ],
+    });
+    tempData = data;
+  }
 
   function abbreviateString(str: string, maxLength = 5) {
     if (str.length <= maxLength) {
@@ -224,6 +290,19 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
     }
   };
 
+  const manageToken = (
+    address: string,
+    type: "basic" | "custom" | "custom_mint" | "liq_mint",
+    name: string,
+    symbol: string
+  ) => {
+    setOpen(true);
+    setManageAddress(address);
+    setTokenType(type);
+    setName(name);
+    setSymbol(symbol);
+  };
+
   return (
     <Root>
       <Box
@@ -255,19 +334,31 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
             sx={{ cursor: "pointer", width: 12 }}
           />
           {tempData && (
-            <Box
-              width={14}
-              height={14}
-              sx={{
-                backgroundImage: `url(${metamask})`,
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                handleAddToken(tokenAddress, tempData[1], tempData[0]);
-              }}
-            />
+            <Tooltip title="Add the token to metamask">
+              <Box
+                width={14}
+                height={14}
+                sx={{
+                  backgroundImage: `url(${metamask})`,
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  handleAddToken(tokenAddress, tempData[1], tempData[0]);
+                }}
+              />
+            </Tooltip>
+          )}
+          {tempData && (
+            <Tooltip title="Manage Token">
+              <SettingsIcon
+                sx={{ cursor: "pointer", width: 12 }}
+                onClick={() => {
+                  manageToken(tokenAddress, type, tempData[2], tempData[1]);
+                }}
+              />
+            </Tooltip>
           )}
           {/* <img
             src={metamask}
@@ -281,7 +372,9 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
             <Grid item xs={6}>
               <Box>
                 {tempData && tempData[1] ? (
-                  <Typography variant="h4">{tempData[1] as string}</Typography>
+                  <Typography variant="h4" noWrap>
+                    {tempData[1] as string}
+                  </Typography>
                 ) : (
                   <Skeleton width={80} component={"h4"} />
                 )}
@@ -326,6 +419,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           p={4}
           bgcolor={theme.palette.mode === "dark" ? grey[700] : grey[100]}
           borderRadius={"0px 0px 8px 8px"}
+          height={400}
         >
           <Typography variant="caption">Token Name</Typography>
           {/*@ts-ignore*/}
@@ -384,7 +478,10 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           </Box>
           <Box mt={2}>
             <Typography variant="caption">Special Features</Typography>
-            {(tempData && tempData[5]) || (tempData && tempData[6]) ? (
+            {(tempData && tempData[5]) ||
+            (tempData && tempData[6]) ||
+            (tempData && tempData[7]) ||
+            (tempData && tempData[8]) ? (
               <Grid container columnGap={3}>
                 {tempData && tempData[5] ? (
                   <Typography variant="subtitle1">
@@ -400,6 +497,20 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                 ) : (
                   ""
                 )}
+                {tempData && tempData[7] ? (
+                  <Typography>
+                    Team: {abbreviateString(tempData[7] as string)}
+                  </Typography>
+                ) : (
+                  ""
+                )}
+                {tempData && tempData[8] ? (
+                  <Typography variant="subtitle1">
+                    Team Hold: {tempData[8] || 0}
+                  </Typography>
+                ) : (
+                  ""
+                )}
               </Grid>
             ) : (
               <Typography variant="subtitle1"> No </Typography>
@@ -407,6 +518,19 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           </Box>
         </Box>
       </Collapse>
+      <TokenManageDialog
+        open={open}
+        handleClose={() => {
+          setOpen(false);
+          setManageAddress("");
+        }}
+        tokenType={tokenType}
+        manageAddress={manageAddress}
+        name={name}
+        symbol={symbol}
+        burn={1}
+        feeRatio={1}
+      />
     </Root>
   );
 };

@@ -26,10 +26,10 @@ export type GenerateParamType = {
 export type CreateTokenType = {
   tokenAddress: string;
   creatorAddress: string;
-  tokenType: "basic" | "custom" | "custom_mint";
+  tokenType: "basic" | "custom" | "custom_mint" | "liq_mint";
 };
 export type CreateTokenResponseType = {
   tokenAddress: string;
   creatorAddress: string;
-  token_type: "basic" | "custom" | "custom_mint";
+  token_type: "basic" | "custom" | "custom_mint" | "liq_mint";
 };
