@@ -506,7 +506,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                 )}
                 {tempData && tempData[8] ? (
                   <Typography variant="subtitle1">
-                    Team Hold: {tempData[8] || 0}
+                    Team Hold: {tempData[8] as any}
                   </Typography>
                 ) : (
                   ""

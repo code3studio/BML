@@ -1,7 +1,5 @@
 import {
-  Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -16,7 +14,6 @@ import React, { useEffect, useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import custom_abi from "../../../../../smart_contract/customer_token.json";
 import std_abi from "../../../../../smart_contract/std_token.json";
-import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
 import custom_liquidity_abi from "../../../../../smart_contract/custom_liquidity_token.json";
 import { parseEther } from "viem";
 import loadingIcon from "../../../../../assets/loading.png";
@@ -92,7 +89,7 @@ const TokenManageDialog = ({
   };
   const {
     isLoading: isConfirming,
-    isSuccess: isConfirmed,
+    // isSuccess: isConfirmed,
     data,
   } = useWaitForTransactionReceipt({
     hash,
