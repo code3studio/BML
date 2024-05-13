@@ -267,6 +267,27 @@ const TokenInfoContent = (_props: Props) => {
         });
         return 0;
       } else {
+        if (mint) {
+          console.log("createCustomMintableERC20");
+          setType("custom_mint");
+          writeContract({
+            address: CONTRACT_ADDRESS,
+            abi,
+            functionName: "createCustomMintableERC20",
+            args: [
+              data.supply.toString(), // totalSupply: 100 million tokens
+              data.name ? data.name : data.symbol, // name: 'ExampleToken'
+              data.symbol, // symbol: 'EXM'
+              data.decimals?.toString(),
+              (data.burnRate ? data.burnRate * 100 : 0).toString(),
+              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+
+              // decimals: typically 18, like Ethereum
+            ],
+            value: parseEther(SERVICE_FEE),
+          });
+          return 0;
+        }
         console.log("createCustomERC20");
         setType("custom");
 
