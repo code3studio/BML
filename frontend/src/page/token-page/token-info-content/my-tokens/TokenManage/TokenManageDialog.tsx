@@ -19,6 +19,7 @@ import std_abi from "../../../../../smart_contract/std_token.json";
 import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
 import custom_liquidity_abi from "../../../../../smart_contract/custom_liquidity_token.json";
 import { parseEther } from "viem";
+import loadingIcon from "../../../../../assets/loading.png";
 
 type Props = {
   open: boolean;
@@ -302,7 +303,10 @@ const TokenManageDialog = ({
           },
         }}
       >
-        <CircularProgress />
+        <img
+          src={loadingIcon}
+          style={{ animation: "rotation 2s infinite linear" }}
+        />
       </Dialog>
     </Dialog>
   );
