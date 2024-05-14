@@ -15,6 +15,8 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import ModeNightIcon from "@mui/icons-material/ModeNight";
 import { useTheme } from "@mui/material";
 import { useWeb3ModalTheme } from "@web3modal/wagmi/react";
+import logo from "../../assets/logo.webp";
+
 const pages = ["Deploy", "Guide", "Legal/disc"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -51,7 +53,6 @@ function ResponsiveAppBar() {
     <AppBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <TokenIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
@@ -69,6 +70,7 @@ function ResponsiveAppBar() {
           >
             TOKENATOR
           </Typography>
+          <img src={logo} width={30} height={30} style={{ marginRight: 4 }} />
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton

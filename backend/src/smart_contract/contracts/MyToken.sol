@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
-
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
@@ -11,21 +10,24 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
-
-
-contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PermitUpgradeable, OwnableUpgradeable {
-      mapping(address => uint256) private _buyBlock;
-    bool public checkBot = true;
-    
+contract CustomLiquidityToken is
+    Initializable,
+    ERC20Upgradeable,
+    ERC20BurnableUpgradeable,
+    ERC20PermitUpgradeable,
+    OwnableUpgradeable
+{
     uint256 public teamAllocation;
+    uint256 public liqudityAllocation;
     IUniswapV2Router02 public uniswapRouter;
-    IUniswapV2Pair public uniswapPair;
-     address public teamAddress;
+    IUniswapV2Pair public uniswapV2Pair;
+    address public teamAddress;
     uint256 public tradeBurnRatio;
     uint256 public tradeFeeRatio;
 
+    event Withdraw(address account, uint256 amount);
 
-       struct VestingSchedule {
+    struct VestingSchedule {
         uint256 totalAmount;
         uint256 amountClaimed;
         uint256 vestingStart;
@@ -36,7 +38,7 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
 
     mapping(address => VestingSchedule) public vestingSchedules;
 
-     constructor() {
+    constructor() {
         _disableInitializers();
     }
 
@@ -49,18 +51,25 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
         address _teamAddress,
         uint256[] memory ratio
     ) public initializer {
-        //ratio [0] ;burnRatio [1]; feeRatio [2]; teamAllocationpercentage [3]; vestingDuration for team
+        //ratio [0] ;burnRatio [1]; feeRatio [2]; teamAllocationpercentage [3]; vestingDuration for team  [4]; liquidity
         __ERC20_init(name, symbol);
         __ERC20Burnable_init();
         __ERC20Permit_init(name);
         __Ownable_init(initialOwner);
-        _mint(initialOwner, (_totalSupply*(100-ratio[2])/100) * 10 ** decimals);
-        uniswapRouter = IUniswapV2Router02(0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891);
+        _mint(
+            initialOwner,
+            (_totalSupply * (100 - ratio[2] - ratio[4]) * 10 ** decimals) / 100
+        );
+        uniswapRouter = IUniswapV2Router02(
+            0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008
+        );
         //team
         teamAddress = _teamAddress;
         teamAllocation = (_totalSupply * ratio[2] * 10 ** decimals) / 100;
+        liqudityAllocation = (_totalSupply * ratio[4] * 10 ** decimals) / 100;
 
-        _mint(address(this),teamAllocation);
+        _mint(address(this), teamAllocation);
+        _mint(address(this), liqudityAllocation);
         setVestingSchedule(teamAddress, teamAllocation, ratio[3]);
         //fee
         require(ratio[0] >= 0 && ratio[0] <= 5000, "TRADE_BURN_RATIO_INVALID");
@@ -68,9 +77,8 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
 
         tradeBurnRatio = ratio[0];
         tradeFeeRatio = ratio[1];
-
     }
-   function setVestingSchedule(
+    function setVestingSchedule(
         address teamMember,
         uint256 amount,
         uint256 _vestingPeriod
@@ -88,7 +96,7 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
         schedule.isActive = true;
     }
 
-     function claimVestedTokens() public {
+    function claimVestedTokens() public {
         VestingSchedule storage schedule = vestingSchedules[msg.sender];
         require(
             schedule.isActive,
@@ -114,11 +122,16 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
 
         _transfer(address(this), msg.sender, releaseAmount);
     }
-    
 
-    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) public payable {
+    function addLiquidity(uint256 tokenAmount) public payable {
+        address pairAddress = IUniswapV2Factory(uniswapRouter.factory())
+            .createPair(address(this), uniswapRouter.WETH());
+
+        uniswapV2Pair = IUniswapV2Pair(pairAddress);
+        _approve(address(this), address(uniswapV2Pair), type(uint256).max);
+        uniswapV2Pair.approve(address(uniswapRouter), type(uint256).max);
         _approve(address(this), address(uniswapRouter), tokenAmount);
-        uniswapRouter.addLiquidityETH{value: ethAmount}(
+        uniswapRouter.addLiquidityETH{value: msg.value}(
             address(this),
             tokenAmount,
             0, // Slippage is unavoidable
@@ -141,10 +154,10 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
 
     function removeLiquidityAndBurnLP(uint256 liquidity) public {
         // Transfer LP tokens from the user to the contract
-        uniswapPair.transferFrom(msg.sender, address(this), liquidity);
+        uniswapV2Pair.transferFrom(msg.sender, address(this), liquidity);
 
         // Approve the router to withdraw the tokens from this contract
-        uniswapPair.approve(address(uniswapRouter), liquidity);
+        uniswapV2Pair.approve(address(uniswapRouter), liquidity);
 
         // Call to Uniswap to remove liquidity, tokens are returned to this contract
         (uint amountA, uint amountB) = uniswapRouter.removeLiquidity(
@@ -158,28 +171,31 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
         );
 
         // Burn the LP tokens held by the contract
-        uniswapPair.burn(address(this));
+        uniswapV2Pair.burn(address(this));
 
         // Optionally, transfer the withdrawn tokens to the user
         ERC20Upgradeable(address(this)).transfer(msg.sender, amountA);
         ERC20Upgradeable(uniswapRouter.WETH()).transfer(msg.sender, amountB);
     }
 
-     function transfer(address to, uint256 value) public virtual override  returns (bool) {
+    function transfer(
+        address to,
+        uint256 value
+    ) public virtual override returns (bool) {
         address sender = _msgSender();
-         uint256 burnAmount;
+        uint256 burnAmount;
         uint256 feeAmount;
-        if(tradeBurnRatio > 0) {
-            burnAmount = value* tradeBurnRatio / 10000;
-           _burn(sender,burnAmount);
+        if (tradeBurnRatio > 0) {
+            burnAmount = (value * tradeBurnRatio) / 10000;
+            _burn(sender, burnAmount);
         }
 
-        if(tradeFeeRatio > 0) {
-            feeAmount = value*tradeFeeRatio/10000;
-            transferFrom(msg.sender,owner(),feeAmount);
+        if (tradeFeeRatio > 0) {
+            feeAmount = (value * tradeFeeRatio) / 10000;
+            transferFrom(msg.sender, owner(), feeAmount);
         }
-        
-        uint256 receiveAmount = value-burnAmount-feeAmount;
+
+        uint256 receiveAmount = value - burnAmount - feeAmount;
         _transfer(sender, to, receiveAmount);
         return true;
     }
@@ -193,5 +209,10 @@ contract CustomLiquidityToken is Initializable, ERC20Upgradeable, ERC20BurnableU
         tradeFeeRatio = _ratio;
     }
 
+    function withdraw() external onlyOwner {
+        uint256 amount = address(this).balance;
+        address payable payableSender = payable(msg.sender);
+        payableSender.transfer(amount);
+        emit Withdraw(msg.sender, amount);
+    }
 }
-

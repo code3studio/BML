@@ -15,7 +15,7 @@ const Root = styled(Box)(({ theme }) => ({
   //   display: "flex",
   position: "fixed",
   bottom: 0,
-  backgroundColor: theme.palette.mode === "dark" ? "#3c3744" : "#b4c5e4",
+  backgroundColor: theme.palette.mode === "dark" ? "#3c3744" : "#cce9f9",
   right: 0,
   left: 0,
 }));

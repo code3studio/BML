@@ -46,6 +46,7 @@ interface IData {
   teamAddress?: string;
   teamAllocationPercentage?: number;
   duration?: number;
+  liquidityAllocation?: number;
 }
 
 const Root = styled(Box)(() => ({
@@ -99,6 +100,7 @@ const TokenInfoContent = (_props: Props) => {
       teamAddress: z.string().optional(),
       teamAllocationPercentage: z.number().optional(),
       duration: z.number().optional(),
+      liquidityAllocation: z.number().optional(),
     })
   );
   const [tokens, setTokens] = useState<CreateTokenResponseType[]>([]);
@@ -115,6 +117,7 @@ const TokenInfoContent = (_props: Props) => {
       teamAddress: z.string().optional(),
       teamAllocationPercentage: z.number().optional(),
       duration: z.number().optional(),
+      liquidityAllocation: z.number().optional(),
     });
     setSchema(newSchema as any);
   }, [burn, fee, team]);
@@ -132,6 +135,7 @@ const TokenInfoContent = (_props: Props) => {
       teamAddress: "",
       teamAllocationPercentage: 0,
       duration: 0,
+      liquidityAllocation: 0,
     },
   });
 
@@ -164,6 +168,10 @@ const TokenInfoContent = (_props: Props) => {
                 : 0
               ).toString(),
               durationTime,
+              (data.liquidityAllocation
+                ? data.liquidityAllocation
+                : 0
+              ).toString(),
             ],
           ],
           value: parseEther(SERVICE_FEE),
@@ -214,6 +222,10 @@ const TokenInfoContent = (_props: Props) => {
                 : 0
               ).toString(),
               durationTime,
+              (data.liquidityAllocation
+                ? data.liquidityAllocation
+                : 0
+              ).toString(),
             ],
           ],
           value: parseEther(SERVICE_FEE),
@@ -261,6 +273,10 @@ const TokenInfoContent = (_props: Props) => {
                 : 0
               ).toString(),
               durationTime,
+              (data.liquidityAllocation
+                ? data.liquidityAllocation
+                : 0
+              ).toString(),
             ],
           ],
           value: parseEther(SERVICE_FEE),
@@ -682,7 +698,26 @@ const TokenInfoContent = (_props: Props) => {
                           token
                         </Typography>
                       </Grid>
-                      <Grid item xs="auto"></Grid>
+                      <Grid item xs="auto">
+                        <Controller
+                          name="liquidityAllocation"
+                          control={control}
+                          render={({ field: { onChange, ...field } }) => (
+                            <PercentageText
+                              type="number"
+                              onChange={(e) => onChange(Number(e.target.value))}
+                              {...field}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    %
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
+                      </Grid>
                     </Grid>
                   </BoxRoot>
                 </Collapse>

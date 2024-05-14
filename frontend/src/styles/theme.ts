@@ -35,7 +35,7 @@ const theme: ThemeOptions = {
     //   disabled: "#6A6F7A",
     // },
     primary: {
-      main: "#090c9b",
+      main: "#3c5d76",
       light: "#3066be",
       contrastText: "#fbfff1",
     },
@@ -49,7 +49,7 @@ const theme: ThemeOptions = {
     // },
   },
   typography: {
-    // fontFamily: "Manrope",
+    fontFamily: "Circular",
     h1: {
       fontSize: "96px",
       fontWeight: 900,
@@ -95,8 +95,9 @@ const theme: ThemeOptions = {
     MuiChip: {
       styleOverrides: {
         label: {
-          color: "#CCD2DC",
-          fontSize: "16px",
+          // color: "#CCD2DC",
+          fontSize: "11px",
+          cursor: "pointer",
         },
       },
     },

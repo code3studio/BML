@@ -217,6 +217,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           abi: custom_liquidity_abi,
           functionName: "teamAllocation",
         },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "uniswapV2Pair",
+        },
       ],
     });
     tempData = data;
@@ -232,10 +237,14 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   }
 
   function formatNumber(number: number) {
-    if (number >= 1000000) {
+    if (number >= 1000000000000) {
+      return (number / 1000000000000).toFixed(1) + "T";
+    } else if (number >= 1000000000) {
+      return (number / 1000000000).toFixed(1) + "G";
+    } else if (number >= 1000000) {
       return (number / 1000000).toFixed(1) + "M";
     } else if (number >= 1000) {
-      return (number / 1000).toFixed(1) + "k";
+      return (number / 1000).toFixed(1) + "K";
     } else {
       return number.toString();
     }
@@ -308,7 +317,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
       <Box
         position={"relative"}
         padding={2}
-        bgcolor={theme.palette.mode === "dark" ? blueGrey[800] : blue[50]}
+        bgcolor={theme.palette.mode === "dark" ? blueGrey[800] : blue[100]}
         borderRadius={"8px 8px 0px 0px"}
       >
         <Box display={"flex"} columnGap={2} alignItems={"center"}>
@@ -419,7 +428,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           p={4}
           bgcolor={theme.palette.mode === "dark" ? grey[700] : grey[100]}
           borderRadius={"0px 0px 8px 8px"}
-          height={400}
+          // sx={{ overflow: "scroll" }}
+          height={450}
         >
           <Typography variant="caption">Token Name</Typography>
           {/*@ts-ignore*/}
@@ -505,8 +515,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                   ""
                 )}
                 {tempData && tempData[8] ? (
-                  <Typography variant="subtitle1">
-                    Team Hold: {tempData[8] as any}
+                  <Typography>
+                    Team Hold: {processBigint(tempData[8] as bigint)}
                   </Typography>
                 ) : (
                   ""
@@ -518,19 +528,26 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           </Box>
         </Box>
       </Collapse>
-      <TokenManageDialog
-        open={open}
-        handleClose={() => {
-          setOpen(false);
-          setManageAddress("");
-        }}
-        tokenType={tokenType}
-        manageAddress={manageAddress}
-        name={name}
-        symbol={symbol}
-        burn={1}
-        feeRatio={1}
-      />
+      {tempData && (
+        <TokenManageDialog
+          open={open}
+          handleClose={() => {
+            setOpen(false);
+            setManageAddress("");
+          }}
+          tokenType={tokenType}
+          manageAddress={manageAddress}
+          name={name}
+          symbol={symbol}
+          burn={Number(tempData[5] ?? 0) / 100}
+          feeRatio={Number(tempData[6] ?? 0) / 100}
+          balance={Number(processBigint(tempData[4] as bigint)) ?? 0}
+          totalSupply={Number(processBigint(tempData[3] as bigint)) ?? 0}
+          liquidity={0}
+          teamAllocation={Number(processBigint(tempData[8] as bigint)) ?? 0}
+          pairAddress={tempData[9] ? (tempData[9] as string) : ""}
+        />
+      )}
     </Root>
   );
 };
