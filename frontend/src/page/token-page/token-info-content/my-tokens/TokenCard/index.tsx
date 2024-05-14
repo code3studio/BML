@@ -544,7 +544,9 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           balance={Number(processBigint(tempData[4] as bigint)) ?? 0}
           totalSupply={Number(processBigint(tempData[3] as bigint)) ?? 0}
           liquidity={0}
-          teamAllocation={Number(processBigint(tempData[8] as bigint)) ?? 0}
+          teamAllocation={
+            tempData[8] ? Number(processBigint(tempData[8] as bigint)) : 0
+          }
           pairAddress={tempData[9] ? (tempData[9] as string) : ""}
         />
       )}
