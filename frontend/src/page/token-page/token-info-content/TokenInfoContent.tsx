@@ -329,7 +329,6 @@ const TokenInfoContent = (_props: Props) => {
   } = useWaitForTransactionReceipt({
     hash,
   });
-  console.log("result===", data, isConfirmed, isConfirming, error);
 
   useEffect(() => {
     const fetchData = async () => {
