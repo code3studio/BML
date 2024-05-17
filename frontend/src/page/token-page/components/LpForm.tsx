@@ -5,9 +5,9 @@ import { Controller, useFormContext } from "react-hook-form";
 type Props = {};
 
 const LpForm = (_props: Props) => {
-  const { control, watch } = useFormContext<Partial<GenerateParamType>>();
+  const { control } = useFormContext<Partial<GenerateParamType>>();
 
-  const add = watch("liquidityAdd");
+  // const add = watch("liquidityAdd");
 
   return (
     <>
