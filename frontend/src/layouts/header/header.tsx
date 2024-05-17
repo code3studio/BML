@@ -17,7 +17,7 @@ import { useTheme } from "@mui/material";
 import { useWeb3ModalTheme } from "@web3modal/wagmi/react";
 import logo from "../../assets/logo.webp";
 
-const pages = ["Deploy", "Guide", "Legal/disc"];
+const pages = ["Guide", "Legal/disc"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function ResponsiveAppBar() {
@@ -70,7 +70,12 @@ function ResponsiveAppBar() {
           >
             TOKENATOR
           </Typography>
-          <img src={logo} width={30} height={30} style={{ marginRight: 4 }} />
+          <img
+            src={logo}
+            width={30}
+            height={30}
+            style={{ marginRight: "20px" }}
+          />
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -133,7 +138,7 @@ function ResponsiveAppBar() {
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{ my: 2, color: "white", display: "block", mx: 2 }}
               >
                 {page}
               </Button>
@@ -175,7 +180,7 @@ function ResponsiveAppBar() {
               toggleThemeMode();
               setThemeMode(!themeMode as any);
             }}
-            sx={{ p: 0, mx: 6 }}
+            sx={{ p: 0, mx: 3 }}
           >
             {theme.palette.mode === "dark" ? (
               <LightModeIcon />
