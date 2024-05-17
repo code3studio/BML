@@ -8,7 +8,6 @@ const LpForm = (_props: Props) => {
   const { control, watch } = useFormContext<Partial<GenerateParamType>>();
 
   const add = watch("liquidityAdd");
-  console.log("add==", add);
 
   return (
     <>

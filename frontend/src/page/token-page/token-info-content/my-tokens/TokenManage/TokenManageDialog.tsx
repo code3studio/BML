@@ -188,7 +188,6 @@ const TokenManageDialog = ({
       },
     ],
   });
-  console.log("liquidityAllocation==", liquidityAllocation);
 
   if (!pairAddress.includes("0x000000")) {
     const { data } = useReadContracts({
@@ -208,7 +207,6 @@ const TokenManageDialog = ({
     });
     tempData = data;
   }
-  console.log("data==", tempData, error?.message);
   useEffect(() => {
     if (error) {
       setAlert(true);

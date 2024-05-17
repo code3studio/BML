@@ -21,7 +21,6 @@ const TokenomicsForm = (_props: Props) => {
   const { errors } = formState;
 
   const mintable = watch("mintable");
-  console.log("mintable==", mintable);
 
   const theme = useTheme();
   return (

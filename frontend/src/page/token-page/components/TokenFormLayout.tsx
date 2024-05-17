@@ -228,7 +228,6 @@ export default function CustomizedSteppers() {
     temp.owner = address ? address : "";
 
     data.owner = address ? address : "";
-    console.log("temp==", temp);
     setInfo(temp);
     if (completedSteps() === totalSteps() - 1) {
       try {
@@ -242,7 +241,6 @@ export default function CustomizedSteppers() {
       } catch (error) {
         setLoading(false);
         setError("Deploy failed");
-        console.log("err===", error);
       }
     } else {
       handleComplete();

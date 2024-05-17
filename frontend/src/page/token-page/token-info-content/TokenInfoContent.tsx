@@ -143,12 +143,10 @@ const TokenInfoContent = (_props: Props) => {
   const { dirtyFields, isValid } = formState;
 
   const onSubmit = async (data: IData) => {
-    console.log("data==", data, hash);
     if (burn && fee && mint) {
       if (liq || team) {
         let durationTime =
           Number(data.duration ? data.duration : 0) * 60 * 60 * 24;
-        console.log("liquidityCustomERC20");
         setType("liq_mint");
         writeContract({
           address: CONTRACT_ADDRESS,
@@ -178,7 +176,6 @@ const TokenInfoContent = (_props: Props) => {
         });
         return 0;
       } else {
-        console.log("createCustomMintableERC20");
         setType("custom_mint");
         writeContract({
           address: CONTRACT_ADDRESS,
@@ -202,7 +199,6 @@ const TokenInfoContent = (_props: Props) => {
       if (liq || team) {
         let durationTime =
           Number(data.duration ? data.duration : 0) * 60 * 60 * 24;
-        console.log("liquidityCustomERC20");
         setType("liq_mint");
         writeContract({
           address: CONTRACT_ADDRESS,
@@ -232,7 +228,6 @@ const TokenInfoContent = (_props: Props) => {
         });
         return 0;
       } else {
-        console.log("createStdERC20");
         setType("basic");
         writeContract({
           address: CONTRACT_ADDRESS,
@@ -253,7 +248,6 @@ const TokenInfoContent = (_props: Props) => {
       if (liq || team) {
         let durationTime =
           Number(data.duration ? data.duration : 0) * 60 * 60 * 24;
-        console.log("liquidityCustomERC20");
         setType("liq_mint");
         writeContract({
           address: CONTRACT_ADDRESS,
