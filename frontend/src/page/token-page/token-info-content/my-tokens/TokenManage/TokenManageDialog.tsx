@@ -38,8 +38,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
-import { NETWORK } from "../../../../../constant";
+import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import ethIcon from "../../../../../assets/crypto/eth@2x.png";
+import successImg from "../../../../../assets/success.png";
 type Props = {
   open: boolean;
   handleClose: () => void;
@@ -54,6 +55,7 @@ type Props = {
   balance: number;
   liquidity: number;
   pairAddress: string;
+  owner: string;
 };
 
 const Transition = React.forwardRef(function Transition(
@@ -78,6 +80,7 @@ const TokenManageDialog = ({
   balance,
   totalSupply,
   pairAddress,
+  owner,
 }: Props) => {
   let tempData;
   const [fee, setFee] = useState<number>(0);
@@ -88,6 +91,7 @@ const TokenManageDialog = ({
   const [mintAmount, setMintAmount] = useState<number>(0);
   const [alert, setAlert] = useState(false);
   const [burnLP, setBurnLP] = useState<number>(0);
+  const [renounceDialog, setRenounceDialog] = useState<boolean>(false);
   const { address } = useAccount();
 
   useEffect(() => {
@@ -114,6 +118,7 @@ const TokenManageDialog = ({
       abi: std_abi,
       functionName: "renounceOwnership",
     });
+    setRenounceDialog(true);
   };
   const handleAddLiquidity = async () => {
     // writeContract({
@@ -172,12 +177,10 @@ const TokenManageDialog = ({
       args: [parseEther(burnLP.toString())],
     });
   };
-  const {
-    isLoading: isConfirming,
-    // isSuccess: isConfirmed,
-  } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
   const { data: liquidityAllocation } = useReadContracts({
     allowFailure: false,
     contracts: [
@@ -266,6 +269,13 @@ const TokenManageDialog = ({
       fullWidth
       TransitionComponent={Transition}
     >
+      <IconButton
+        size="small"
+        sx={{ position: "absolute", top: 3, right: 3 }}
+        onClick={handleClose}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogTitle>{name} Token control panel</DialogTitle>
       <Box sx={{ width: "100%" }}>
         <Collapse in={alert}>
@@ -306,7 +316,11 @@ const TokenManageDialog = ({
                     <InputAdornment position="end">%</InputAdornment>
                   ),
                 }}
-                onChange={(e) => setFee(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setFee(value === "" ? NaN : Number(value));
+                }}
                 value={fee}
               />
             </Grid>
@@ -332,7 +346,11 @@ const TokenManageDialog = ({
                     <InputAdornment position="end">%</InputAdornment>
                   ),
                 }}
-                onChange={(e) => setBurnRatio(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setBurnRatio(value === "" ? NaN : Number(value));
+                }}
                 value={burnRatio}
               />
             </Grid>
@@ -362,7 +380,13 @@ const TokenManageDialog = ({
                 //     <InputAdornment position="end">%</InputAdornment>
                 //   ),
                 // }}
-                onChange={(e) => setBurnAmount(Number(e.target.value))}
+                onChange={(e) => {
+                  {
+                    const value = e.target.value;
+
+                    setBurnAmount(value === "" ? NaN : Number(value));
+                  }
+                }}
                 value={burnAmount}
               />
             </Grid>
@@ -390,7 +414,13 @@ const TokenManageDialog = ({
                   //     <InputAdornment position="end">%</InputAdornment>
                   //   ),
                   // }}
-                  onChange={(e) => setMintAmount(Number(e.target.value))}
+                  onChange={(e) => {
+                    {
+                      const value = e.target.value;
+
+                      setMintAmount(value === "" ? NaN : Number(value));
+                    }
+                  }}
                   value={mintAmount}
                 />
               </Grid>
@@ -415,18 +445,29 @@ const TokenManageDialog = ({
                 <Grid item md={12}>
                   <Grid container flexDirection={"column"}>
                     {" "}
-                    <TextField
-                      type="number"
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {symbol}
-                          </InputAdornment>
-                        ),
-                      }}
-                      onChange={(e) => setTokenAmount(Number(e.target.value))}
-                      value={tokenAmount}
-                    />
+                    {liquidityAllocation && (
+                      <TextField
+                        helperText={`You can add a maximum of ${processBigint(
+                          liquidityAllocation[0] as bigint
+                        )} to the liquidity`}
+                        type="number"
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {symbol}
+                            </InputAdornment>
+                          ),
+                        }}
+                        onChange={(e) => {
+                          {
+                            const value = e.target.value;
+
+                            setTokenAmount(value === "" ? NaN : Number(value));
+                          }
+                        }}
+                        value={tokenAmount}
+                      />
+                    )}
                     {liquidityAllocation && (
                       <Box
                         display={"flex"}
@@ -503,7 +544,13 @@ const TokenManageDialog = ({
                           <InputAdornment position="end">eth</InputAdornment>
                         ),
                       }}
-                      onChange={(e) => setEthAmount(Number(e.target.value))}
+                      onChange={(e) => {
+                        {
+                          const value = e.target.value;
+
+                          setEthAmount(value === "" ? NaN : Number(value));
+                        }
+                      }}
                       value={ethAmount}
                     />
                   </Grid>
@@ -601,7 +648,13 @@ const TokenManageDialog = ({
                           <InputAdornment position="end">UNI-V2</InputAdornment>
                         ),
                       }}
-                      onChange={(e) => setBurnLP(Number(e.target.value))}
+                      onChange={(e) => {
+                        {
+                          const value = e.target.value;
+
+                          setBurnLP(value === "" ? NaN : Number(value));
+                        }
+                      }}
                       value={burnLP}
                     />
                   </Grid>
@@ -641,15 +694,22 @@ const TokenManageDialog = ({
           </Grid>
         )}
         <Divider sx={{ mt: 2 }} /> */}
-        <Button
-          sx={{ mt: 2 }}
-          onClick={handleRenounce}
-          variant="contained"
-          fullWidth
-        >
-          {" "}
-          Renounce Ownership
-        </Button>
+        {owner == DEAD_ADDRESS ? (
+          <Button sx={{ mt: 2 }} variant="contained" fullWidth disabled>
+            {" "}
+            The contract is renounced
+          </Button>
+        ) : (
+          <Button
+            sx={{ mt: 2 }}
+            onClick={handleRenounce}
+            variant="contained"
+            fullWidth
+          >
+            {" "}
+            Renounce Ownership
+          </Button>
+        )}
 
         <Chart
           teamAllocation={teamAllocation}
@@ -683,6 +743,23 @@ const TokenManageDialog = ({
           src={loadingIcon}
           style={{ animation: "rotation 2s infinite linear" }}
         />
+      </Dialog>
+      <Dialog
+        onClose={() => setRenounceDialog(false)}
+        open={renounceDialog && isConfirmed}
+        PaperProps={{
+          sx: {
+            p: 3,
+          },
+        }}
+      >
+        <img
+          src={successImg}
+          // style={{ animation: "rotation 2s infinite linear" }}
+        />
+        <Grid container justifyContent={"center"} mt={2}>
+          <Typography>The contract is renounced</Typography>
+        </Grid>
       </Dialog>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 import {
   Box,
+  Chip,
   Collapse,
   Grid,
   Skeleton,
@@ -12,7 +13,7 @@ import { useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
-import { NETWORK } from "../../../../../constant";
+import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import { blue, blueGrey, grey } from "@mui/material/colors";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -75,6 +76,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           functionName: "balanceOf",
           args: [creatorAddress],
         },
+        {
+          address: tokenAddress as any,
+          abi: std_abi,
+          functionName: "owner",
+        },
       ],
     });
     tempData = data;
@@ -119,6 +125,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           abi: custom_abi,
           functionName: "tradeFeeRatio",
         },
+        {
+          address: tokenAddress as any,
+          abi: custom_abi,
+          functionName: "owner",
+        },
       ],
     });
     tempData = data;
@@ -162,6 +173,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           address: tokenAddress as any,
           abi: custom_mint_abi,
           functionName: "tradeFeeRatio",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_mint_abi,
+          functionName: "owner",
         },
       ],
     });
@@ -222,12 +238,17 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           abi: custom_liquidity_abi,
           functionName: "uniswapV2Pair",
         },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "owner",
+        },
       ],
     });
     tempData = data;
   }
 
-  function abbreviateString(str: string, maxLength = 5) {
+  function abbreviateString(str: string, maxLength = 3) {
     if (str.length <= maxLength) {
       return str; //
     }
@@ -320,7 +341,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
         bgcolor={theme.palette.mode === "dark" ? blueGrey[800] : blue[100]}
         borderRadius={"8px 8px 0px 0px"}
       >
-        <Box display={"flex"} columnGap={2} alignItems={"center"}>
+        <Box display={"flex"} columnGap={1} alignItems={"center"}>
           <Typography
             variant="body2"
             component={"a"}
@@ -367,6 +388,12 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                   manageToken(tokenAddress, type, tempData[2], tempData[1]);
                 }}
               />
+            </Tooltip>
+          )}
+
+          {tempData && tempData[tempData?.length - 1] == DEAD_ADDRESS && (
+            <Tooltip title="the contract is renounced">
+              <Chip color="success" label="ren" sx={{ height: "auto" }} />
             </Tooltip>
           )}
           {/* <img
@@ -488,12 +515,12 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           </Box>
           <Box mt={2}>
             <Typography variant="caption">Special Features</Typography>
-            {(tempData && tempData[5]) ||
+            {(type !== "basic" && tempData && tempData[5]) ||
             (tempData && tempData[6]) ||
             (tempData && tempData[7]) ||
             (tempData && tempData[8]) ? (
               <Grid container columnGap={3}>
-                {tempData && tempData[5] ? (
+                {type !== "basic" && tempData && tempData[5] ? (
                   <Typography variant="subtitle1">
                     Burn {(Number(tempData[5]) / 100).toString()} %
                   </Typography>
@@ -548,6 +575,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
             tempData[8] ? Number(processBigint(tempData[8] as bigint)) : 0
           }
           pairAddress={tempData[9] ? (tempData[9] as string) : ""}
+          owner={tempData[tempData.length - 1] as string}
         />
       )}
     </Root>

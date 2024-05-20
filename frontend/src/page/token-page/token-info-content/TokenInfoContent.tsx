@@ -5,10 +5,12 @@ import {
   Checkbox,
   CircularProgress,
   Collapse,
+  Dialog,
   Divider,
   FormControlLabel,
   FormGroup,
   Grid,
+  IconButton,
   InputAdornment,
   Paper,
   TextField,
@@ -33,6 +35,8 @@ import MyTokens from "./my-tokens";
 import { createContract, getTokens } from "../../../services/api";
 import { CreateTokenResponseType } from "../../../types/generate";
 import { CONTRACT_ADDRESS, SERVICE_FEE } from "../../../constant";
+import successImg from "../../../assets/success.png";
+import CloseIcon from "@mui/icons-material/Close";
 
 type Props = {};
 
@@ -104,7 +108,7 @@ const TokenInfoContent = (_props: Props) => {
     })
   );
   const [tokens, setTokens] = useState<CreateTokenResponseType[]>([]);
-
+  const [success, setSuccess] = useState<boolean>(true);
   // Update the schema when checkbox states change
   useEffect(() => {
     const newSchema = z.object({
@@ -135,7 +139,7 @@ const TokenInfoContent = (_props: Props) => {
       teamAddress: "",
       teamAllocationPercentage: 0,
       duration: 0,
-      liquidityAllocation: 0,
+      liquidityAllocation: 80,
     },
   });
 
@@ -159,8 +163,11 @@ const TokenInfoContent = (_props: Props) => {
             data.decimals?.toString(),
             data.teamAddress ? data.teamAddress : address,
             [
-              (data.burnRate ? data.burnRate * 100 : 0).toString(),
-              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.burnRate ? Math.round(data.burnRate * 100) : 0).toString(),
+              (data.tradingFee
+                ? Math.round(data.tradingFee * 100)
+                : 0
+              ).toString(),
               (data.teamAllocationPercentage
                 ? data.teamAllocationPercentage
                 : 0
@@ -176,6 +183,7 @@ const TokenInfoContent = (_props: Props) => {
         });
         return 0;
       } else {
+        console.log("custome_mint");
         setType("custom_mint");
         writeContract({
           address: CONTRACT_ADDRESS,
@@ -186,8 +194,11 @@ const TokenInfoContent = (_props: Props) => {
             data.name ? data.name : data.symbol, // name: 'ExampleToken'
             data.symbol, // symbol: 'EXM'
             data.decimals?.toString(),
-            (data.burnRate ? data.burnRate * 100 : 0).toString(),
-            (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+            (data.burnRate ? Math.round(data.burnRate * 100) : 0).toString(),
+            (data.tradingFee
+              ? Math.round(data.tradingFee * 100)
+              : 0
+            ).toString(),
 
             // decimals: typically 18, like Ethereum
           ],
@@ -211,8 +222,11 @@ const TokenInfoContent = (_props: Props) => {
             data.decimals?.toString(),
             data.teamAddress ? data.teamAddress : address,
             [
-              (data.burnRate ? data.burnRate * 100 : 0).toString(),
-              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.burnRate ? Math.round(data.burnRate * 100) : 0).toString(),
+              (data.tradingFee
+                ? Math.round(data.tradingFee * 100)
+                : 0
+              ).toString(),
               (data.teamAllocationPercentage
                 ? data.teamAllocationPercentage
                 : 0
@@ -260,8 +274,11 @@ const TokenInfoContent = (_props: Props) => {
             data.decimals?.toString(),
             data.teamAddress ? data.teamAddress : address,
             [
-              (data.burnRate ? data.burnRate * 100 : 0).toString(),
-              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.burnRate ? Math.round(data.burnRate * 100) : 0).toString(),
+              (data.tradingFee
+                ? Math.round(data.tradingFee * 100)
+                : 0
+              ).toString(),
               (data.teamAllocationPercentage
                 ? data.teamAllocationPercentage
                 : 0
@@ -289,8 +306,11 @@ const TokenInfoContent = (_props: Props) => {
               data.name ? data.name : data.symbol, // name: 'ExampleToken'
               data.symbol, // symbol: 'EXM'
               data.decimals?.toString(),
-              (data.burnRate ? data.burnRate * 100 : 0).toString(),
-              (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+              (data.burnRate ? Math.round(data.burnRate * 100) : 0).toString(),
+              (data.tradingFee
+                ? Math.round(data.tradingFee * 100)
+                : 0
+              ).toString(),
 
               // decimals: typically 18, like Ethereum
             ],
@@ -310,12 +330,15 @@ const TokenInfoContent = (_props: Props) => {
             data.name ? data.name : data.symbol, // name: 'ExampleToken'
             data.symbol, // symbol: 'EXM'
             data.decimals?.toString(),
-            (data.burnRate ? data.burnRate * 100 : 0).toString(),
-            (data.tradingFee ? data.tradingFee * 100 : 0).toString(),
+            (data.burnRate ? Math.round(data.burnRate * 100) : 0).toString(),
+            (data.tradingFee
+              ? Math.round(data.tradingFee * 100)
+              : 0
+            ).toString(),
 
             // decimals: typically 18, like Ethereum
           ],
-          value: parseEther("0.018"),
+          value: parseEther(SERVICE_FEE),
         });
         return 0;
       }
@@ -378,44 +401,49 @@ const TokenInfoContent = (_props: Props) => {
     }
   };
   return (
-    <FormProvider {...methods}>
-      <FormRoot>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Root>
-              {error && <Alert severity="error">{error.message}</Alert>}
-              <Typography variant="h6">Enter Token Parameters</Typography>
-              <Typography sx={{ mt: 2 }}>Token Symbol</Typography>
+    <>
+      <FormProvider {...methods}>
+        <FormRoot>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Root>
+                {error && <Alert severity="error">{error.message}</Alert>}
+                <Typography variant="h6">Enter Token Parameters</Typography>
+                <Typography sx={{ mt: 2 }}>Token Symbol</Typography>
 
-              <Controller
-                name="symbol"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    placeholder="1-16 Characters"
-                  />
-                )}
-              />
-              <Typography sx={{ mt: 2 }}>Token Supply</Typography>
+                <Controller
+                  name="symbol"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      sx={{ mt: 1 }}
+                      placeholder="1-16 Characters"
+                    />
+                  )}
+                />
+                <Typography sx={{ mt: 2 }}>Token Supply</Typography>
 
-              <Controller
-                name="supply"
-                control={control}
-                render={({ field: { onChange, ...field } }) => (
-                  <TextField
-                    type="number"
-                    {...field}
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    onChange={(e) => onChange(Number(e.target.value))}
-                    placeholder="0-99,999,999,999,999,999"
-                  />
-                )}
-              />
-              {/* <Box
+                <Controller
+                  name="supply"
+                  control={control}
+                  render={({ field: { onChange, ...field } }) => (
+                    <TextField
+                      type="number"
+                      {...field}
+                      fullWidth
+                      sx={{ mt: 1 }}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // If the input is empty, set it to an empty string
+                        onChange(value === "" ? NaN : Number(value));
+                      }}
+                      placeholder="0-99,999,999,999,999,999"
+                    />
+                  )}
+                />
+                {/* <Box
                 display={"flex"}
                 alignItems={"center"}
                 justifyContent={"flex-end"}
@@ -425,225 +453,124 @@ const TokenInfoContent = (_props: Props) => {
                 <Typography>More</Typography>
                 {more ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
               </Box> */}
-              {/* <Collapse in={more}> */}
-              <Typography sx={{ mt: 2 }}>Token Name</Typography>
+                {/* <Collapse in={more}> */}
+                <Typography sx={{ mt: 2 }}>Token Name</Typography>
 
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    placeholder="1-64 Characters"
-                  />
-                )}
-              />
-              <Typography sx={{ mt: 2 }}>Decimals</Typography>
-              <Controller
-                name="decimals"
-                control={control}
-                render={({ field: { onChange, ...field } }) => (
-                  <TextField
-                    onChange={(e) => onChange(Number(e.target.value))}
-                    type="number"
-                    {...field}
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    placeholder="number"
-                  />
-                )}
-              />
-              {/* </Collapse> */}
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      sx={{ mt: 1 }}
+                      placeholder="1-64 Characters"
+                    />
+                  )}
+                />
+                <Typography sx={{ mt: 2 }}>Decimals</Typography>
+                <Controller
+                  name="decimals"
+                  control={control}
+                  render={({ field: { onChange, ...field } }) => (
+                    <TextField
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // If the input is empty, set it to an empty string
+                        onChange(value === "" ? NaN : Number(value));
+                      }}
+                      type="number"
+                      {...field}
+                      fullWidth
+                      sx={{ mt: 1 }}
+                      placeholder="number"
+                    />
+                  )}
+                />
+                {/* </Collapse> */}
 
-              <Box mt={4}>
-                <Typography variant="h6">Special Features</Typography>
-                <FormGroup sx={{ display: "flex", flexDirection: "row" }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={burn}
-                        onChange={(e) => {
-                          e.target.checked
-                            ? setValue("burnRate", 0.1)
-                            : setValue("burnRate", 0);
-                          setBurn(e.target.checked);
-                        }}
-                      />
-                    }
-                    label="Burn"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={fee}
-                        onChange={(e) => {
-                          e.target.checked
-                            ? setValue("tradingFee", 0.1)
-                            : setValue("tradingFee", 0);
-                          setFee(e.target.checked);
-                        }}
-                      />
-                    }
-                    label="Trading Fees"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={mint}
-                        onChange={(e) => setMint(e.target.checked)}
-                      />
-                    }
-                    label="Supports Supply Increase"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={team}
-                        onChange={(e) => setTeam(e.target.checked)}
-                      />
-                    }
-                    label="Team Allocation"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={liq}
-                        onChange={(e) => setLiq(e.target.checked)}
-                      />
-                    }
-                    label="Liquidity feature"
-                  />
-                </FormGroup>
-                {/* {burn ? ( */}
-                <Collapse in={burn}>
-                  <BoxRoot>
-                    <Grid container alignItems={"center"}>
-                      <Grid item xs>
-                        <Typography>Burn:</Typography>
-                        <Typography variant="caption">
-                          A percentage of tokens will be sent to the burn
-                          address for each on-chain transfer
-                        </Typography>
-                      </Grid>
-                      <Grid item xs="auto">
-                        <Controller
-                          name="burnRate"
-                          control={control}
-                          render={({ field: { onChange, ...field } }) => (
-                            <PercentageText
-                              type="number"
-                              onChange={(e) => onChange(Number(e.target.value))}
-                              {...field}
-                              InputProps={{
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    %
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          )}
+                <Box mt={4}>
+                  <Typography variant="h6">Special Features</Typography>
+                  <FormGroup sx={{ display: "flex", flexDirection: "row" }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={burn}
+                          onChange={(e) => {
+                            e.target.checked
+                              ? setValue("burnRate", 0.1)
+                              : setValue("burnRate", 0);
+                            setBurn(e.target.checked);
+                          }}
                         />
-                      </Grid>
-                    </Grid>
-                  </BoxRoot>
-                </Collapse>
-
-                <Collapse in={fee}>
-                  <BoxRoot>
-                    <Grid container alignItems={"center"}>
-                      <Grid item xs>
-                        <Typography>Trading Fee:</Typography>
-                        <Typography variant="caption">
-                          A percentage of tokens will be sent to the creator's
-                          address for each on-chain transfer
-                        </Typography>
-                      </Grid>
-                      <Grid item xs="auto">
-                        <Controller
-                          name="tradingFee"
-                          control={control}
-                          render={({ field: { onChange, ...field } }) => (
-                            <PercentageText
-                              type="number"
-                              onChange={(e) => onChange(Number(e.target.value))}
-                              {...field}
-                              InputProps={{
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    %
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          )}
+                      }
+                      label="Burn"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={fee}
+                          onChange={(e) => {
+                            e.target.checked
+                              ? setValue("tradingFee", 0.1)
+                              : setValue("tradingFee", 0);
+                            setFee(e.target.checked);
+                          }}
                         />
-                      </Grid>
-                    </Grid>
-                  </BoxRoot>
-                </Collapse>
-
-                <Collapse in={mint}>
-                  <BoxRoot>
-                    <Grid container alignItems={"center"}>
-                      <Grid item xs>
-                        <Typography>Supports Supply Increase:</Typography>
-                        <Typography variant="caption">
-                          Allows the creator to issue additional tokens after
-                          the token creation
-                        </Typography>
-                      </Grid>
-                      <Grid item xs="auto">
-                        {/* <TextField
-                sx={{ width: "16ch" }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">%</InputAdornment>
-                  ),
-                }}
-              /> */}
-                      </Grid>
-                    </Grid>
-                  </BoxRoot>
-                </Collapse>
-                <Collapse in={team}>
-                  <BoxRoot>
-                    <Grid container alignItems={"center"}>
-                      <Grid item xs>
-                        <Typography>Team Allocation:</Typography>
-                        <Typography variant="caption">
-                          A percentage of tokens will be allocated to Team
-                          Wallet
-                        </Typography>
-                      </Grid>
-                      <Grid item xs="auto">
-                        <Grid container flexDirection={"column"} rowGap={2}>
+                      }
+                      label="Trading Fees"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={mint}
+                          onChange={(e) => setMint(e.target.checked)}
+                        />
+                      }
+                      label="Supports Supply Increase"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={team}
+                          onChange={(e) => setTeam(e.target.checked)}
+                        />
+                      }
+                      label="Team Allocation"
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={liq}
+                          onChange={(e) => setLiq(e.target.checked)}
+                        />
+                      }
+                      label="Liquidity feature"
+                    />
+                  </FormGroup>
+                  {/* {burn ? ( */}
+                  <Collapse in={burn}>
+                    <BoxRoot>
+                      <Grid container alignItems={"center"}>
+                        <Grid item xs>
+                          <Typography>Burn:</Typography>
+                          <Typography variant="caption">
+                            A percentage of tokens will be sent to the burn
+                            address for each on-chain transfer
+                          </Typography>
+                        </Grid>
+                        <Grid item xs="auto">
                           <Controller
-                            name="teamAddress"
-                            control={control}
-                            render={({ field }) => (
-                              <>
-                                <PercentageText
-                                  label="Team Wallet address"
-                                  placeholder={
-                                    address || "0x1234567890abcdefghigklmn"
-                                  }
-                                  {...field}
-                                />
-                              </>
-                            )}
-                          />
-                          <Controller
-                            name="teamAllocationPercentage"
+                            name="burnRate"
                             control={control}
                             render={({ field: { onChange, ...field } }) => (
                               <PercentageText
                                 type="number"
-                                onChange={(e) =>
-                                  onChange(Number(e.target.value))
-                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  // If the input is empty, set it to an empty string
+                                  onChange(value === "" ? NaN : Number(value));
+                                }}
                                 {...field}
                                 InputProps={{
                                   endAdornment: (
@@ -655,21 +582,38 @@ const TokenInfoContent = (_props: Props) => {
                               />
                             )}
                           />
+                        </Grid>
+                      </Grid>
+                    </BoxRoot>
+                  </Collapse>
+
+                  <Collapse in={fee}>
+                    <BoxRoot>
+                      <Grid container alignItems={"center"}>
+                        <Grid item xs>
+                          <Typography>Trading Fee:</Typography>
+                          <Typography variant="caption">
+                            A percentage of tokens will be sent to the creator's
+                            address for each on-chain transfer
+                          </Typography>
+                        </Grid>
+                        <Grid item xs="auto">
                           <Controller
-                            name="duration"
+                            name="tradingFee"
                             control={control}
                             render={({ field: { onChange, ...field } }) => (
                               <PercentageText
                                 type="number"
-                                label="Vesting Duration"
-                                onChange={(e) =>
-                                  onChange(Number(e.target.value))
-                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  // If the input is empty, set it to an empty string
+                                  onChange(value === "" ? NaN : Number(value));
+                                }}
                                 {...field}
                                 InputProps={{
                                   endAdornment: (
                                     <InputAdornment position="end">
-                                      days
+                                      %
                                     </InputAdornment>
                                   ),
                                 }}
@@ -678,89 +622,219 @@ const TokenInfoContent = (_props: Props) => {
                           />
                         </Grid>
                       </Grid>
-                    </Grid>
-                  </BoxRoot>
-                </Collapse>
-                <Collapse in={liq}>
-                  <BoxRoot>
-                    <Grid container alignItems={"center"}>
-                      <Grid item xs>
-                        <Typography>Liquidity Management Option</Typography>
-                        <Typography variant="caption">
-                          You can add and remove liquidity with ETH for your
-                          token
-                        </Typography>
-                      </Grid>
-                      <Grid item xs="auto">
-                        <Controller
-                          name="liquidityAllocation"
-                          control={control}
-                          render={({ field: { onChange, ...field } }) => (
-                            <PercentageText
-                              type="number"
-                              onChange={(e) => onChange(Number(e.target.value))}
-                              {...field}
-                              InputProps={{
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    %
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          )}
-                        />
-                      </Grid>
-                    </Grid>
-                  </BoxRoot>
-                </Collapse>
-              </Box>
-            </Root>
-          </div>
-          <Divider sx={{ my: 4 }} />
-          <Box
-            display={"flex"}
-            alignItems={"center"}
-            justifyContent={"space-between"}
-          >
-            <Box display={"flex"}>
-              <Typography
-                sx={{
-                  wordBreak: "break-word",
-                  minWidth: "10px",
-                  display: "inline-block",
+                    </BoxRoot>
+                  </Collapse>
+
+                  <Collapse in={mint}>
+                    <BoxRoot>
+                      <Grid container alignItems={"center"}>
+                        <Grid item xs>
+                          <Typography>Supports Supply Increase:</Typography>
+                          <Typography variant="caption">
+                            Allows the creator to issue additional tokens after
+                            the token creation
+                          </Typography>
+                        </Grid>
+                        <Grid item xs="auto">
+                          {/* <TextField
+                sx={{ width: "16ch" }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">%</InputAdornment>
+                  ),
                 }}
-                variant="body2"
+              /> */}
+                        </Grid>
+                      </Grid>
+                    </BoxRoot>
+                  </Collapse>
+                  <Collapse in={team}>
+                    <BoxRoot>
+                      <Grid container alignItems={"center"}>
+                        <Grid item xs>
+                          <Typography>Team Allocation:</Typography>
+                          <Typography variant="caption">
+                            A percentage of tokens will be allocated to Team
+                            Wallet
+                          </Typography>
+                        </Grid>
+                        <Grid item xs="auto">
+                          <Grid container flexDirection={"column"} rowGap={2}>
+                            <Controller
+                              name="teamAddress"
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <PercentageText
+                                    label="Team Wallet address"
+                                    placeholder={
+                                      address || "0x1234567890abcdefghigklmn"
+                                    }
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />
+                            <Controller
+                              name="teamAllocationPercentage"
+                              control={control}
+                              render={({ field: { onChange, ...field } }) => (
+                                <PercentageText
+                                  type="number"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    // If the input is empty, set it to an empty string
+                                    onChange(
+                                      value === "" ? NaN : Number(value)
+                                    );
+                                  }}
+                                  {...field}
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end">
+                                        %
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              )}
+                            />
+                            <Controller
+                              name="duration"
+                              control={control}
+                              render={({ field: { onChange, ...field } }) => (
+                                <PercentageText
+                                  type="number"
+                                  label="Vesting Duration"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    // If the input is empty, set it to an empty string
+                                    onChange(
+                                      value === "" ? NaN : Number(value)
+                                    );
+                                  }}
+                                  {...field}
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end">
+                                        days
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              )}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </BoxRoot>
+                  </Collapse>
+                  <Collapse in={liq}>
+                    <BoxRoot>
+                      <Grid container alignItems={"center"}>
+                        <Grid item xs>
+                          <Typography>Liquidity Management Option</Typography>
+                          <Typography variant="caption">
+                            You can add and remove liquidity with ETH for your
+                            token
+                          </Typography>
+                        </Grid>
+                        <Grid item xs="auto">
+                          <Controller
+                            name="liquidityAllocation"
+                            control={control}
+                            render={({ field: { onChange, ...field } }) => (
+                              <PercentageText
+                                type="number"
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  // If the input is empty, set it to an empty string
+                                  onChange(value === "" ? NaN : Number(value));
+                                }}
+                                {...field}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end">
+                                      %
+                                    </InputAdornment>
+                                  ),
+                                }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </Grid>
+                    </BoxRoot>
+                  </Collapse>
+                </Box>
+              </Root>
+            </div>
+            <Divider sx={{ my: 4 }} />
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
+            >
+              <Box display={"flex"}>
+                <Typography
+                  sx={{
+                    wordBreak: "break-word",
+                    minWidth: "10px",
+                    display: "inline-block",
+                  }}
+                  variant="body2"
+                >
+                  {" "}
+                  Service Fees {SERVICE_FEE} ETH
+                </Typography>
+              </Box>
+
+              <Button
+                sx={{ float: "right", minWidth: 160 }}
+                variant="contained"
+                type="submit"
+                disabled={_.isEmpty(dirtyFields) || !isValid || isConfirming}
               >
                 {" "}
-                Service Fees {SERVICE_FEE} ETH
-              </Typography>
+                {isConfirming && (
+                  <CircularProgress
+                    color="inherit"
+                    sx={{
+                      width: "20px !important",
+                      height: "20px !important",
+                      mr: 1,
+                    }}
+                  />
+                )}
+                Create a token
+              </Button>
             </Box>
-
-            <Button
-              sx={{ float: "right", minWidth: 160 }}
-              variant="contained"
-              type="submit"
-              disabled={_.isEmpty(dirtyFields) || !isValid || isConfirming}
-            >
-              {" "}
-              {isConfirming && (
-                <CircularProgress
-                  color="inherit"
-                  sx={{
-                    width: "20px !important",
-                    height: "20px !important",
-                    mr: 1,
-                  }}
-                />
-              )}
-              Create a token
-            </Button>
-          </Box>
-        </form>
-      </FormRoot>
-      {tokens.length > 0 && <MyTokens tokens={tokens} />}
-    </FormProvider>
+          </form>
+        </FormRoot>
+        {tokens.length > 0 && <MyTokens tokens={tokens} />}
+      </FormProvider>
+      <Dialog
+        open={success && isConfirmed}
+        onClose={() => setSuccess(false)}
+        PaperProps={{
+          sx: {
+            p: 3,
+          },
+        }}
+      >
+        <IconButton
+          size="small"
+          sx={{ position: "absolute", top: 4, right: 4 }}
+          onClick={() => setSuccess(false)}
+        >
+          <CloseIcon />
+        </IconButton>
+        <img src={successImg} />
+        <Grid container justifyContent={"center"}>
+          <Typography>New token is created</Typography>
+        </Grid>
+      </Dialog>
+    </>
   );
 };
 
