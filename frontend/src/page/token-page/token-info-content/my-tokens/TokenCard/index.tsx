@@ -10,7 +10,7 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
@@ -18,7 +18,7 @@ import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import { blue, blueGrey, grey } from "@mui/material/colors";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useReadContracts } from "wagmi";
+import { useReadContracts, useWriteContract } from "wagmi";
 import custom_abi from "../../../../../smart_contract/customer_token.json";
 import std_abi from "../../../../../smart_contract/std_token.json";
 import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
@@ -26,6 +26,10 @@ import custom_liquidity_abi from "../../../../../smart_contract/custom_liquidity
 import { CreateTokenType } from "../../../../../types/generate";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TokenManageDialog from "../TokenManage/TokenManageDialog";
+import {
+  ContractContext,
+  ContractContextType,
+} from "../../../../../context/ContractProvider";
 
 type Props = {
   tokenAddress: string;
@@ -44,13 +48,31 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   const [manageAddress, setManageAddress] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [symbol, setSymbol] = useState<string>("");
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const context = React.useContext<ContractContextType | undefined>(
+    ContractContext
+  );
+  if (!context) {
+    throw new Error("useThemeMode must be used within a ThemeProvider");
+  }
+
+  const { updated } = context;
+
+  useEffect(() => {
+    if (updated) {
+      setRefetchTrigger((prev) => prev + 1);
+    }
+  }, [updated]);
+  console.log("up==", updated);
   const [tokenType, setTokenType] = useState<
     "basic" | "custom" | "custom_mint" | "liq_mint"
   >("basic");
   let tempData;
+
   if (type === "basic") {
     const { data } = useReadContracts({
       allowFailure: false,
+      scopeKey: refetchTrigger.toString(),
       contracts: [
         {
           address: tokenAddress as any,
@@ -90,6 +112,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   if (type === "custom") {
     const { data } = useReadContracts({
       allowFailure: false,
+      scopeKey: refetchTrigger.toString(),
+
       contracts: [
         {
           address: tokenAddress as any,
@@ -139,6 +163,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   if (type === "custom_mint") {
     const { data } = useReadContracts({
       allowFailure: false,
+      scopeKey: refetchTrigger.toString(),
+
       contracts: [
         {
           address: tokenAddress as any,
@@ -188,6 +214,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   if (type === "liq_mint") {
     const { data } = useReadContracts({
       allowFailure: false,
+      scopeKey: refetchTrigger.toString(),
+
       contracts: [
         {
           address: tokenAddress as any,

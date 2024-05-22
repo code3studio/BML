@@ -41,6 +41,10 @@ import metamask from "../../../../../assets/mt.svg";
 import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import ethIcon from "../../../../../assets/crypto/eth@2x.png";
 import successImg from "../../../../../assets/success.png";
+import {
+  ContractContext,
+  ContractContextType,
+} from "../../../../../context/ContractProvider";
 type Props = {
   open: boolean;
   handleClose: () => void;
@@ -94,6 +98,13 @@ const TokenManageDialog = ({
   const [renounceDialog, setRenounceDialog] = useState<boolean>(false);
   const { address } = useAccount();
 
+  const context = React.useContext<ContractContextType | undefined>(
+    ContractContext
+  );
+  if (!context) {
+    throw new Error("useThemeMode must be used within a ThemeProvider");
+  }
+  const { changeUpdate } = context;
   useEffect(() => {
     setBurnRatio(burn);
     setFee(feeRatio);
@@ -181,6 +192,7 @@ const TokenManageDialog = ({
     useWaitForTransactionReceipt({
       hash,
     });
+  changeUpdate(isConfirmed);
   const { data: liquidityAllocation } = useReadContracts({
     allowFailure: false,
     contracts: [

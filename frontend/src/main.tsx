@@ -5,12 +5,17 @@ import "./index.css";
 import { ThemeContext } from "./context/themeContext.ts";
 import { PaletteMode, ThemeProvider } from "@mui/material";
 import { customTheme } from "./styles/theme.ts";
+import { ContractContext } from "./context/ContractProvider.ts";
 
 const AppWrapper = () => {
   const [themeMode, setThemeMode] = useState<PaletteMode>("light");
-
+  const [updated, setUpdated] = useState<boolean>(false);
   const toggleThemeMode = () => {
     setThemeMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+  };
+
+  const changeUpdate = (e: boolean) => {
+    setUpdated(e);
   };
 
   return (
@@ -18,8 +23,10 @@ const AppWrapper = () => {
     <ThemeContext.Provider value={{ themeMode, toggleThemeMode }}>
       {/* <PageContextProvider> */}
       <ThemeProvider theme={customTheme(themeMode)}>
+        <ContractContext.Provider value={{ updated, changeUpdate }}>
+          <App />
+        </ContractContext.Provider>
         {/* <TonConnectUIProvider manifestUrl={import.meta.env.VITE_API_URL +"manifest.json"}> */}
-        <App />
         {/* </TonConnectUIProvider> */}
       </ThemeProvider>
       {/* </PageContextProvider> */}
