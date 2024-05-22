@@ -1,6 +1,7 @@
 import {
   Box,
   Chip,
+  ClickAwayListener,
   Collapse,
   Grid,
   Skeleton,
@@ -39,6 +40,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   const theme = useTheme();
   const [more, setMore] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [openCopy, setOpenCopy] = useState<boolean>(false);
   const [manageAddress, setManageAddress] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [symbol, setSymbol] = useState<string>("");
@@ -274,10 +276,14 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
     return (BigInt(number) / 1000000000000000000n).toString();
   }
 
+  const handleTooltipClose = () => {
+    setOpenCopy(false);
+  };
   const handleCopyText = (address: string) => {
     navigator.clipboard
       .writeText(address)
       .then(() => {
+        setOpenCopy(true);
         console.log("Text copied successfully");
       })
       .catch((err) => {
@@ -356,13 +362,31 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
               window.open(`${NETWORK}token/${tokenAddress}`, "_blank");
             }}
           />
-          <ContentCopyIcon
-            onClick={() => {
-              handleCopyText(tokenAddress);
-            }}
-            fontSize="small"
-            sx={{ cursor: "pointer", width: 12 }}
-          />
+          <ClickAwayListener onClickAway={handleTooltipClose}>
+            {/* <div> */}
+            <Tooltip
+              PopperProps={{
+                disablePortal: true,
+              }}
+              onClose={handleTooltipClose}
+              open={openCopy}
+              disableFocusListener
+              disableHoverListener
+              disableTouchListener
+              arrow
+              placement="top"
+              title="Address copied"
+            >
+              <ContentCopyIcon
+                onClick={() => {
+                  handleCopyText(tokenAddress);
+                }}
+                fontSize="small"
+                sx={{ cursor: "pointer", width: 12 }}
+              />
+            </Tooltip>
+            {/* </div> */}
+          </ClickAwayListener>
           {tempData && (
             <Tooltip title="Add the token to metamask">
               <Box
