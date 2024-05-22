@@ -4,6 +4,7 @@ import {
   Button,
   Chip,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
@@ -45,6 +46,7 @@ import {
   ContractContext,
   ContractContextType,
 } from "../../../../../context/ContractProvider";
+import { toast } from "react-toastify";
 type Props = {
   open: boolean;
   handleClose: () => void;
@@ -70,6 +72,7 @@ const Transition = React.forwardRef(function Transition(
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+let count = 0;
 
 const TokenManageDialog = ({
   open,
@@ -95,8 +98,9 @@ const TokenManageDialog = ({
   const [mintAmount, setMintAmount] = useState<number>(0);
   const [alert, setAlert] = useState(false);
   const [burnLP, setBurnLP] = useState<number>(0);
-  const [renounceDialog, setRenounceDialog] = useState<boolean>(false);
+  const [suc, setSuc] = useState<boolean>(true);
   const { address } = useAccount();
+  const [confirm, setConfirm] = useState<boolean>(false);
 
   const context = React.useContext<ContractContextType | undefined>(
     ContractContext
@@ -129,7 +133,6 @@ const TokenManageDialog = ({
       abi: std_abi,
       functionName: "renounceOwnership",
     });
-    setRenounceDialog(true);
   };
   const handleAddLiquidity = async () => {
     // writeContract({
@@ -188,6 +191,7 @@ const TokenManageDialog = ({
       args: [parseEther(burnLP.toString())],
     });
   };
+  console.log("hash==", hash);
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
@@ -272,6 +276,30 @@ const TokenManageDialog = ({
     }
   };
 
+  if (isConfirmed && hash) {
+    count += 1;
+    if (count == 1) {
+      toast.success(
+        <>
+          <Grid container justifyContent={"center"} mt={2}>
+            <Typography variant="subtitle1">Operation succeeded.</Typography>
+          </Grid>
+          <Grid container justifyContent={"center"} mt={2}>
+            <Typography
+              variant="subtitle1"
+              component={"a"}
+              href={`${NETWORK}tx/${hash}`}
+              sx={{ color: "blue", textDecoration: "underline" }}
+              target="_blank"
+            >
+              Transaction
+            </Typography>
+          </Grid>
+        </>
+      );
+    }
+  }
+
   return (
     <Dialog
       open={open}
@@ -290,6 +318,11 @@ const TokenManageDialog = ({
       </IconButton>
       <DialogTitle>{name} Token control panel</DialogTitle>
       <Box sx={{ width: "100%" }}>
+        {owner == DEAD_ADDRESS && (
+          <Typography textAlign={"center"} color={"green"}>
+            The Contract is renounced. anymore edits can be made
+          </Typography>
+        )}
         <Collapse in={alert}>
           {/* {alert && ( */}
           <Alert
@@ -314,7 +347,7 @@ const TokenManageDialog = ({
         </Collapse>
       </Box>
       <DialogContent>
-        {tokenType !== "basic" && (
+        {(tokenType !== "basic" && burnRatio == 0) || fee ? (
           <Grid
             container
             alignItems={"center"}
@@ -323,6 +356,7 @@ const TokenManageDialog = ({
             <Grid item md={5}>
               <TextField
                 type="number"
+                disabled={owner == DEAD_ADDRESS}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">%</InputAdornment>
@@ -337,12 +371,17 @@ const TokenManageDialog = ({
               />
             </Grid>
             <Grid item md={6}>
-              <Button onClick={handleChangeFee} fullWidth variant="contained">
+              <Button
+                disabled={owner == DEAD_ADDRESS}
+                onClick={handleChangeFee}
+                fullWidth
+                variant="contained"
+              >
                 Change Trading Fee
               </Button>
             </Grid>
           </Grid>
-        )}
+        ) : null}
         {tokenType !== "basic" && (
           <Grid
             container
@@ -353,6 +392,7 @@ const TokenManageDialog = ({
             <Grid item md={5}>
               <TextField
                 type="number"
+                disabled={owner == DEAD_ADDRESS}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">%</InputAdornment>
@@ -371,6 +411,7 @@ const TokenManageDialog = ({
                 onClick={handleChangeBurnRate}
                 fullWidth
                 variant="contained"
+                disabled={owner == DEAD_ADDRESS}
               >
                 Change Burn Rate Fee
               </Button>
@@ -387,6 +428,7 @@ const TokenManageDialog = ({
             <Grid item md={5}>
               <TextField
                 type="number"
+                disabled={owner == DEAD_ADDRESS}
                 // InputProps={{
                 //   endAdornment: (
                 //     <InputAdornment position="end">%</InputAdornment>
@@ -403,7 +445,12 @@ const TokenManageDialog = ({
               />
             </Grid>
             <Grid item md={6}>
-              <Button onClick={handleBurn} fullWidth variant="contained">
+              <Button
+                disabled={owner == DEAD_ADDRESS}
+                onClick={handleBurn}
+                fullWidth
+                variant="contained"
+              >
                 Burn
               </Button>
             </Grid>
@@ -421,6 +468,7 @@ const TokenManageDialog = ({
               <Grid item md={5}>
                 <TextField
                   type="number"
+                  disabled={owner == DEAD_ADDRESS}
                   // InputProps={{
                   //   endAdornment: (
                   //     <InputAdornment position="end">%</InputAdornment>
@@ -437,7 +485,12 @@ const TokenManageDialog = ({
                 />
               </Grid>
               <Grid item md={6}>
-                <Button onClick={handleMint} fullWidth variant="contained">
+                <Button
+                  disabled={owner == DEAD_ADDRESS}
+                  onClick={handleMint}
+                  fullWidth
+                  variant="contained"
+                >
                   Mint
                 </Button>
               </Grid>
@@ -459,6 +512,7 @@ const TokenManageDialog = ({
                     {" "}
                     {liquidityAllocation && (
                       <TextField
+                        disabled={owner == DEAD_ADDRESS}
                         helperText={`You can add a maximum of ${processBigint(
                           liquidityAllocation[0] as bigint
                         )} to the liquidity`}
@@ -489,6 +543,7 @@ const TokenManageDialog = ({
                       >
                         <Chip
                           label="20%"
+                          disabled={owner == DEAD_ADDRESS}
                           onClick={() => {
                             setTokenAmount(
                               Number(
@@ -501,6 +556,7 @@ const TokenManageDialog = ({
                         />
                         <Chip
                           label="40%"
+                          disabled={owner == DEAD_ADDRESS}
                           onClick={() => {
                             setTokenAmount(
                               Number(
@@ -513,6 +569,7 @@ const TokenManageDialog = ({
                         />
                         <Chip
                           label="60%"
+                          disabled={owner == DEAD_ADDRESS}
                           onClick={() => {
                             setTokenAmount(
                               Number(
@@ -525,6 +582,7 @@ const TokenManageDialog = ({
                         />
                         <Chip
                           label="80%"
+                          disabled={owner == DEAD_ADDRESS}
                           onClick={() => {
                             setTokenAmount(
                               Number(
@@ -537,6 +595,7 @@ const TokenManageDialog = ({
                         />
                         <Chip
                           label="100%"
+                          disabled={owner == DEAD_ADDRESS}
                           onClick={() => {
                             setTokenAmount(
                               Number(
@@ -551,6 +610,7 @@ const TokenManageDialog = ({
                     )}
                     <TextField
                       type="number"
+                      disabled={owner == DEAD_ADDRESS}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">eth</InputAdornment>
@@ -569,6 +629,7 @@ const TokenManageDialog = ({
                 </Grid>
                 <Grid item md={12}>
                   <Button
+                    disabled={owner == DEAD_ADDRESS}
                     sx={{ mt: 2 }}
                     variant="contained"
                     fullWidth
@@ -654,6 +715,7 @@ const TokenManageDialog = ({
                 >
                   <Grid item md={5}>
                     <TextField
+                      disabled={owner == DEAD_ADDRESS}
                       type="number"
                       InputProps={{
                         endAdornment: (
@@ -672,6 +734,7 @@ const TokenManageDialog = ({
                   </Grid>
                   <Grid item md={6}>
                     <Button
+                      disabled={owner == DEAD_ADDRESS}
                       onClick={handleLPBurn}
                       fullWidth
                       variant="contained"
@@ -714,7 +777,7 @@ const TokenManageDialog = ({
         ) : (
           <Button
             sx={{ mt: 2 }}
-            onClick={handleRenounce}
+            onClick={() => setConfirm(true)}
             variant="contained"
             fullWidth
           >
@@ -756,22 +819,25 @@ const TokenManageDialog = ({
           style={{ animation: "rotation 2s infinite linear" }}
         />
       </Dialog>
-      <Dialog
-        onClose={() => setRenounceDialog(false)}
-        open={renounceDialog && isConfirmed}
-        PaperProps={{
-          sx: {
-            p: 3,
-          },
-        }}
-      >
-        <img
-          src={successImg}
-          // style={{ animation: "rotation 2s infinite linear" }}
-        />
-        <Grid container justifyContent={"center"} mt={2}>
-          <Typography>The contract is renounced</Typography>
-        </Grid>
+
+      <Dialog open={confirm} maxWidth="xs" onClose={() => setConfirm(false)}>
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogContent>
+          Once a smart contract has been renounced, no further edits can be made
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{ mr: 2 }}
+            color="secondary"
+            variant="contained"
+            onClick={handleRenounce}
+          >
+            yes
+          </Button>
+          <Button variant="contained" onClick={() => setConfirm(false)}>
+            no
+          </Button>
+        </DialogActions>
       </Dialog>
     </Dialog>
   );

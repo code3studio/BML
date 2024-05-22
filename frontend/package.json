@@ -28,6 +28,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.3",
     "react-router-dom": "^6.23.0",
+    "react-toastify": "^10.0.5",
     "viem": "^2.9.27",
     "wagmi": "^2.5.22",
     "zod": "^3.23.4"

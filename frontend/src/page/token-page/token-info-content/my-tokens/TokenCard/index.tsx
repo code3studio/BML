@@ -10,7 +10,7 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
@@ -634,4 +634,4 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   );
 };
 
-export default TokenCard;
+export default memo(TokenCard);
