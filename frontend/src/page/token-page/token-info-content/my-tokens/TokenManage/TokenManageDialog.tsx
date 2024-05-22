@@ -41,7 +41,6 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
 import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import ethIcon from "../../../../../assets/crypto/eth@2x.png";
-import successImg from "../../../../../assets/success.png";
 import {
   ContractContext,
   ContractContextType,
@@ -98,7 +97,6 @@ const TokenManageDialog = ({
   const [mintAmount, setMintAmount] = useState<number>(0);
   const [alert, setAlert] = useState(false);
   const [burnLP, setBurnLP] = useState<number>(0);
-  const [suc, setSuc] = useState<boolean>(true);
   const { address } = useAccount();
   const [confirm, setConfirm] = useState<boolean>(false);
 
@@ -377,7 +375,7 @@ const TokenManageDialog = ({
                 fullWidth
                 variant="contained"
               >
-                Change Trading Fee
+                Change Creator commissions
               </Button>
             </Grid>
           </Grid>
