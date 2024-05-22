@@ -34,9 +34,10 @@ import { parseEther } from "viem";
 import MyTokens from "./my-tokens";
 import { createContract, getTokens } from "../../../services/api";
 import { CreateTokenResponseType } from "../../../types/generate";
-import { CONTRACT_ADDRESS, SERVICE_FEE } from "../../../constant";
-import successImg from "../../../assets/success.png";
+import { CONTRACT_ADDRESS, NETWORK, SERVICE_FEE } from "../../../constant";
+import successImg from "../../../assets/icons8-bot.gif";
 import CloseIcon from "@mui/icons-material/Close";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 type Props = {};
 
@@ -815,10 +816,13 @@ const TokenInfoContent = (_props: Props) => {
       </FormProvider>
       <Dialog
         open={success && isConfirmed}
+        maxWidth="xs"
         onClose={() => setSuccess(false)}
         PaperProps={{
           sx: {
             p: 3,
+            display: "flex",
+            alignItems: "center",
           },
         }}
       >
@@ -829,9 +833,24 @@ const TokenInfoContent = (_props: Props) => {
         >
           <CloseIcon />
         </IconButton>
-        <img src={successImg} />
+        <img src={successImg} width={160} />
         <Grid container justifyContent={"center"}>
-          <Typography>New token is created</Typography>
+          <Typography textAlign={"center"} mt={2} variant="subtitle1">
+            Your token has been successfully created. To view and manage it,
+            simply click gear icon <SettingsIcon htmlColor="grey" /> on your
+            token in the My Token List section
+          </Typography>
+
+          <Typography
+            mt={2}
+            textAlign={"center"}
+            component={"a"}
+            href={`${NETWORK}/token/${data?.logs[0].address}`}
+            target="_blank"
+            sx={{ textDecoration: "underline", color: "blue" }}
+          >
+            Transaction
+          </Typography>
         </Grid>
       </Dialog>
     </>
