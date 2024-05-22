@@ -63,7 +63,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
       setRefetchTrigger((prev) => prev + 1);
     }
   }, [updated]);
-  console.log("up==", updated);
+
   const [tokenType, setTokenType] = useState<
     "basic" | "custom" | "custom_mint" | "liq_mint"
   >("basic");
@@ -322,10 +322,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   const handleAddToken = async (
     tokenAddress: string,
     tokenSymbol: string,
-    tokenDecimals: number
+    tokenDecimals: number,
+    tokenName: string
   ) => {
     //@ts-ignore
-    if (window.ethereum) {
+    if (window.ethereum && window.ethereum.request) {
       try {
         //@ts-ignore
         const wasAdded = await window.ethereum.request({
@@ -336,6 +337,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
               address: tokenAddress,
               symbol: tokenSymbol,
               decimals: tokenDecimals,
+              name: tokenName,
               // image: tokenImage,
             },
           },
@@ -427,7 +429,12 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                   cursor: "pointer",
                 }}
                 onClick={() => {
-                  handleAddToken(tokenAddress, tempData[1], tempData[0]);
+                  handleAddToken(
+                    tokenAddress,
+                    tempData[1],
+                    tempData[0],
+                    tempData[2]
+                  );
                 }}
               />
             </Tooltip>

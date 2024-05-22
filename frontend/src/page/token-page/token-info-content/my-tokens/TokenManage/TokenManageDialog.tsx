@@ -189,7 +189,6 @@ const TokenManageDialog = ({
       args: [parseEther(burnLP.toString())],
     });
   };
-  console.log("hash==", hash);
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
