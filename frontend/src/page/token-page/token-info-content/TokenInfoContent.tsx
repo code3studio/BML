@@ -652,21 +652,22 @@ const TokenInfoContent = (_props: Props) => {
                   <Collapse in={team}>
                     <BoxRoot>
                       <Grid container alignItems={"center"}>
-                        <Grid item xs>
+                        <Grid item xs={12}>
                           <Typography>Team Allocation:</Typography>
                           <Typography variant="caption">
                             A percentage of tokens will be allocated to Team
                             Wallet
                           </Typography>
                         </Grid>
-                        <Grid item xs="auto">
+                        <Grid item xs={12}>
                           <Grid container flexDirection={"column"} rowGap={2}>
                             <Controller
                               name="teamAddress"
                               control={control}
                               render={({ field }) => (
                                 <>
-                                  <PercentageText
+                                  <TextField
+                                    fullWidth
                                     label="Team Wallet address"
                                     placeholder={
                                       address || "0x1234567890abcdefghigklmn"
@@ -676,55 +677,65 @@ const TokenInfoContent = (_props: Props) => {
                                 </>
                               )}
                             />
-                            <Controller
-                              name="teamAllocationPercentage"
-                              control={control}
-                              render={({ field: { onChange, ...field } }) => (
-                                <PercentageText
-                                  type="number"
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    // If the input is empty, set it to an empty string
-                                    onChange(
-                                      value === "" ? NaN : Number(value)
-                                    );
-                                  }}
-                                  {...field}
-                                  InputProps={{
-                                    endAdornment: (
-                                      <InputAdornment position="end">
-                                        %
-                                      </InputAdornment>
-                                    ),
-                                  }}
+                            <Grid container spacing={2}>
+                              <Grid item xs={6}>
+                                <Controller
+                                  name="teamAllocationPercentage"
+                                  control={control}
+                                  render={({
+                                    field: { onChange, ...field },
+                                  }) => (
+                                    <TextField
+                                      type="number"
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        // If the input is empty, set it to an empty string
+                                        onChange(
+                                          value === "" ? NaN : Number(value)
+                                        );
+                                      }}
+                                      {...field}
+                                      InputProps={{
+                                        endAdornment: (
+                                          <InputAdornment position="end">
+                                            %
+                                          </InputAdornment>
+                                        ),
+                                      }}
+                                    />
+                                  )}
                                 />
-                              )}
-                            />
-                            <Controller
-                              name="duration"
-                              control={control}
-                              render={({ field: { onChange, ...field } }) => (
-                                <PercentageText
-                                  type="number"
-                                  label="Vesting Duration"
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    // If the input is empty, set it to an empty string
-                                    onChange(
-                                      value === "" ? NaN : Number(value)
-                                    );
-                                  }}
-                                  {...field}
-                                  InputProps={{
-                                    endAdornment: (
-                                      <InputAdornment position="end">
-                                        days
-                                      </InputAdornment>
-                                    ),
-                                  }}
+                              </Grid>
+                              <Grid item xs={6}>
+                                <Controller
+                                  name="duration"
+                                  control={control}
+                                  render={({
+                                    field: { onChange, ...field },
+                                  }) => (
+                                    <TextField
+                                      type="number"
+                                      label="Vesting Duration"
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        // If the input is empty, set it to an empty string
+                                        onChange(
+                                          value === "" ? NaN : Number(value)
+                                        );
+                                      }}
+                                      {...field}
+                                      InputProps={{
+                                        endAdornment: (
+                                          <InputAdornment position="end">
+                                            days
+                                          </InputAdornment>
+                                        ),
+                                      }}
+                                    />
+                                  )}
                                 />
-                              )}
-                            />
+                              </Grid>
+                            </Grid>
                           </Grid>
                         </Grid>
                       </Grid>

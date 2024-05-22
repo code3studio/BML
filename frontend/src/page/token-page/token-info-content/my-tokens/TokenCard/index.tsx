@@ -600,6 +600,9 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
                 ) : (
                   ""
                 )}
+                {type === "custom_mint" && (
+                  <Chip label="mintable" size="small" color="info" />
+                )}
               </Grid>
             ) : (
               <Typography variant="subtitle1"> No </Typography>
