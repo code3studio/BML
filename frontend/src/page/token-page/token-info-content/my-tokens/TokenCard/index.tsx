@@ -18,7 +18,7 @@ import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import { blue, blueGrey, grey } from "@mui/material/colors";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useReadContracts, useWriteContract } from "wagmi";
+import { useReadContracts } from "wagmi";
 import custom_abi from "../../../../../smart_contract/customer_token.json";
 import std_abi from "../../../../../smart_contract/std_token.json";
 import custom_mint_abi from "../../../../../smart_contract/custom_mint_token.json";
