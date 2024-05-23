@@ -10,6 +10,7 @@ pub struct UserTokens {
     pub creator_address: String,
 
     pub token_type: TokenType,
+    pub select:Vec<String>
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserTokensRequest {
@@ -20,6 +21,7 @@ pub struct UserTokensRequest {
 
     #[serde(rename = "tokenType")]
     pub token_type: TokenType,
+    pub select:Vec<String>
 }
 
 #[derive(Debug, Serialize, Deserialize,Clone)]
@@ -41,7 +43,8 @@ impl TryFrom<UserTokensRequest> for UserTokens {
             _id:ObjectId::new(),
             token_address:value.token_address,
             creator_address:value.creator_address,
-            token_type:value.token_type
+            token_type:value.token_type,
+            select:value.select
         })
     }
 }

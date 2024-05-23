@@ -45,6 +45,7 @@ pub async fn create(db: Data<Database>, req: Json<UserTokensRequest>) -> HttpRes
                 token_address: req.token_address.clone(),
                 creator_address: req.creator_address.clone(),
                 token_type: req.token_type.clone(),
+                select:req.select.clone()
             })
             .expect("Error converting TokenRequest to Token"),
         )
