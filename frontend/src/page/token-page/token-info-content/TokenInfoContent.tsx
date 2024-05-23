@@ -109,7 +109,7 @@ const TokenInfoContent = (_props: Props) => {
     })
   );
   const [tokens, setTokens] = useState<CreateTokenResponseType[]>([]);
-  const [success, setSuccess] = useState<boolean>(true);
+  const [success, setSuccess] = useState<boolean>(false);
   // Update the schema when checkbox states change
   useEffect(() => {
     const newSchema = z.object({
@@ -413,6 +413,13 @@ const TokenInfoContent = (_props: Props) => {
     };
     fetchData();
   }, [address]);
+  useEffect(() => {
+    if (isConfirmed) {
+      setSuccess(true);
+    }
+  }, [isConfirmed]);
+
+  console.log("isConfirmed==", isConfirmed);
 
   const getUserTokens = async (address: string) => {
     try {
