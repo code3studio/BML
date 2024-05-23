@@ -89,7 +89,7 @@ const TokenManageDialog = ({
   open,
   handleClose,
   manageAddress,
-  tokenType,
+
   name,
   symbol,
   burn,
