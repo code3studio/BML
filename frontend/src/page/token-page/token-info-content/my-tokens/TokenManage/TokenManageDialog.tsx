@@ -10,6 +10,7 @@ import {
   Divider,
   Grid,
   InputAdornment,
+  Skeleton,
   Slide,
   TextField,
   Tooltip,
@@ -19,6 +20,8 @@ import { TransitionProps } from "@mui/material/transitions";
 import React, { useEffect, useState } from "react";
 import {
   useAccount,
+  useConfig,
+  useReadContract,
   useReadContracts,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -46,6 +49,13 @@ import {
   ContractContextType,
 } from "../../../../../context/ContractProvider";
 import { toast } from "react-toastify";
+import {
+  waitForTransactionReceipt,
+  writeContract as writeCoreContract,
+} from "@wagmi/core";
+import { CreateTokenType } from "../../../../../types/generate";
+import moment from "moment";
+
 type Props = {
   open: boolean;
   handleClose: () => void;
@@ -61,6 +71,8 @@ type Props = {
   liquidity: number;
   pairAddress: string;
   owner: string;
+  select: CreateTokenType["select"];
+  teamAddress: string;
 };
 
 const Transition = React.forwardRef(function Transition(
@@ -87,6 +99,8 @@ const TokenManageDialog = ({
   totalSupply,
   pairAddress,
   owner,
+  select,
+  teamAddress,
 }: Props) => {
   let tempData;
   const [fee, setFee] = useState<number>(0);
@@ -99,6 +113,8 @@ const TokenManageDialog = ({
   const [burnLP, setBurnLP] = useState<number>(0);
   const { address } = useAccount();
   const [confirm, setConfirm] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const constConfig = useConfig();
 
   const context = React.useContext<ContractContextType | undefined>(
     ContractContext
@@ -111,6 +127,14 @@ const TokenManageDialog = ({
     setBurnRatio(burn);
     setFee(feeRatio);
   }, [burn, feeRatio]);
+  //@ts-ignore
+  const { data }: any[] = useReadContract({
+    address: manageAddress as any,
+    abi: custom_liquidity_abi,
+    functionName: "vestingSchedules",
+    args: [teamAddress],
+  });
+
   const { data: hash, writeContract, error } = useWriteContract();
   function processBigint(number: bigint) {
     return (BigInt(number) / 1000000000000000000n).toString();
@@ -133,19 +157,64 @@ const TokenManageDialog = ({
     });
   };
   const handleAddLiquidity = async () => {
-    // writeContract({
-    //   address:manageAddress as any,
-    //   abi:custom_liquidity_abi ,
-    //   functionName:"transfer",
+    try {
+      setLoading(true);
+      //@ts-ignore
+      const result = await writeCoreContract(constConfig, {
+        address: manageAddress as any,
+        abi: custom_liquidity_abi,
+        functionName: "transfer",
+        args: [manageAddress, parseEther(tokenAmount.toString())],
+      });
+      //@ts-ignore
+      const trr = await waitForTransactionReceipt(constConfig, {
+        hash: result,
+      });
+      //@ts-ignore
+      const res = await writeCoreContract(constConfig, {
+        address: manageAddress as any,
+        abi: custom_liquidity_abi,
+        functionName: "addLiquidity",
+        args: [parseEther(tokenAmount.toString())],
+        value: parseEther(ethAmount.toString()),
+      });
+      //@ts-ignore
+      const tr = await waitForTransactionReceipt(constConfig, {
+        hash: res,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      changeUpdate(true);
+    }
+    // const result = await writeContract(
+    //   {
+    //     address: manageAddress as any,
+    //     abi: custom_liquidity_abi,
+    //     functionName: "transfer",
+    //     args: [manageAddress, parseEther(tokenAmount.toString())],
+    //   },
+    //   {
+    //     onSuccess: (data) => {
+    //       console.log("data==", data);
+    //       // const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    //       //   useWaitForTransactionReceipt({
+    //       //     hash: data,
+    //       //   });
 
-    // })
-    writeContract({
-      address: manageAddress as any,
-      abi: custom_liquidity_abi,
-      functionName: "addLiquidity",
-      args: [parseEther(tokenAmount.toString())],
-      value: parseEther(ethAmount.toString()),
-    });
+    //       // console.log("isLoading====", isConfirming, isConfirmed);
+    //       // while (isConfirming) {
+    //       //   console.log("isLoading==", isConfirming, isConfirmed);
+    //       //   if (isConfirmed) break;
+    //       // }
+
+    //       // if (isConfirmed) {
+
+    //       // }
+    //     },
+    //   }
+    // );
   };
   function abbreviateString(str: string, maxLength = 5) {
     if (str.length <= maxLength) {
@@ -200,7 +269,8 @@ const TokenManageDialog = ({
       {
         address: manageAddress as any,
         abi: custom_liquidity_abi,
-        functionName: "liqudityAllocation",
+        functionName: "balanceOf",
+        args: [address],
       },
     ],
   });
@@ -344,7 +414,7 @@ const TokenManageDialog = ({
         </Collapse>
       </Box>
       <DialogContent>
-        {(tokenType !== "basic" && burnRatio == 0) || fee ? (
+        {select.includes("fee") ? (
           <Grid
             container
             alignItems={"center"}
@@ -379,7 +449,7 @@ const TokenManageDialog = ({
             </Grid>
           </Grid>
         ) : null}
-        {tokenType !== "basic" && (
+        {select.includes("burn") && (
           <Grid
             container
             alignItems={"center"}
@@ -415,7 +485,7 @@ const TokenManageDialog = ({
             </Grid>
           </Grid>
         )}
-        {tokenType !== "basic" && (
+        {select.includes("burn") && (
           <Grid
             container
             alignItems={"center"}
@@ -453,7 +523,7 @@ const TokenManageDialog = ({
             </Grid>
           </Grid>
         )}
-        {tokenType === "custom_mint" && (
+        {select.includes("mint") && (
           <>
             <Divider sx={{ mt: 2 }} />
             <Grid
@@ -495,7 +565,7 @@ const TokenManageDialog = ({
           </>
         )}
         <Divider sx={{ mt: 2 }} />
-        {tokenType == "liq_mint" && (
+        {select.includes("liquidity") && (
           <>
             {pairAddress.includes("0x000000000") ? (
               <Grid
@@ -745,27 +815,45 @@ const TokenManageDialog = ({
             <Divider sx={{ mt: 2 }} />
           </>
         )}
-        {/* {tokenType == "liq_mint" && (
-          <Grid
-            container
-            justifyContent={"space-between"}
-            mt={2}
-            alignItems={"center"}
-          >
-            <Grid item md={5}>
-              <Grid container flexDirection={"column"} rowGap={2}>
-                <TextField />
-                <TextField />
+        {select.includes("team") ? (
+          <>
+            <Grid container justifyContent={"center"}>
+              <Typography variant="subtitle1">Team Allocation</Typography>
+            </Grid>
+            {data?.length > 0 ? (
+              <Grid container mt={2} spacing={1}>
+                <Grid item container justifyContent={"space-between"}>
+                  <Typography>Team Address:</Typography>
+                  <Typography>{abbreviateString(teamAddress)}</Typography>
+                </Grid>
+                <Grid item container justifyContent={"space-between"}>
+                  <Typography>Vesting amount:</Typography>
+                  <Typography>
+                    {" "}
+                    {processBigint(data[0])} {symbol}
+                  </Typography>
+                </Grid>
+                <Grid item container justifyContent={"space-between"}>
+                  <Typography> Vesting Duration:</Typography>
+                  <Typography>{Number(data[3]) / (24 * 3600)} days</Typography>
+                </Grid>
+                <Grid item container justifyContent={"space-between"}>
+                  <Typography> Vesting Start Date:</Typography>
+                  <Typography>
+                    {moment
+                      .unix(Number(data[2]))
+                      .utc()
+                      .format("DD, MM, YYYY, h:mm:ss (UTC)")}
+                  </Typography>
+                </Grid>
               </Grid>
-            </Grid>
-            <Grid item md={6}>
-              <Button variant="contained" fullWidth>
-                Add Liquidity
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-        <Divider sx={{ mt: 2 }} /> */}
+            ) : (
+              <Skeleton width={"200"} />
+            )}
+            <Divider sx={{ mt: 2 }} />
+          </>
+        ) : null}
+
         {owner == DEAD_ADDRESS ? (
           <Button sx={{ mt: 2 }} variant="contained" fullWidth disabled>
             {" "}
@@ -802,7 +890,7 @@ const TokenManageDialog = ({
         />
       </DialogContent>
       <Dialog
-        open={isConfirming}
+        open={isConfirming || loading}
         PaperProps={{
           sx: {
             background: "transparent",

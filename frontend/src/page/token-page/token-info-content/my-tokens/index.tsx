@@ -38,6 +38,7 @@ const MyTokens = ({ tokens }: Props) => {
               creatorAddress={token.creatorAddress}
               // @ts-ignore
               type={token.token_type}
+              select={token.select}
             />
           </Grid>
         ))}

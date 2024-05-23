@@ -1,14 +1,14 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
         const TokenModule = buildModule("TokenModule", (m:any) => {
-       const cloneFactory = m.getParameter("cloneFactory","0xACA38AaD6171EC03D744E530876d67d3Ed449CFf");
-       const erc20Template = m.getParameter("erc20Template","0x443c8F29B15EFB63BE7067e749620328AaBB6C40");
-       const customErc20Template = m.getParameter("customErc20Template","0x0bAcb6aC1826ded459624794E5b60a4FcFc6a6e1");
-       const customMintableErc20Template = m.getParameter("customMintableErc20Template","0x941c28A0e801a979715c0724C5dFd8ad225836B1");
-       const customLiquidityErc20Template = m.getParameter("customLiquidityErc20Template","0x65F41D4884F517874519ddee2BE2793166dA6D88");
-       const createFee = m.getParameter("createFee",1000000000000000);
-       const token = m.contract("ERC20V3Factory",[cloneFactory,erc20Template,customErc20Template,customMintableErc20Template,customLiquidityErc20Template,createFee]);
-
+//        const cloneFactory = m.getParameter("cloneFactory","0xACA38AaD6171EC03D744E530876d67d3Ed449CFf");
+//        const erc20Template = m.getParameter("erc20Template","0x443c8F29B15EFB63BE7067e749620328AaBB6C40");
+//        const customErc20Template = m.getParameter("customErc20Template","0x0bAcb6aC1826ded459624794E5b60a4FcFc6a6e1");
+//        const customMintableErc20Template = m.getParameter("customMintableErc20Template","0x941c28A0e801a979715c0724C5dFd8ad225836B1");
+//        const customLiquidityErc20Template = m.getParameter("customLiquidityErc20Template","0x65F41D4884F517874519ddee2BE2793166dA6D88");
+//        const createFee = m.getParameter("createFee",1000000000000000);
+//        const token = m.contract("ERC20V3Factory",[cloneFactory,erc20Template,customErc20Template,customMintableErc20Template,customLiquidityErc20Template,createFee]);
+                const token = m.contract("CustomLiquidityToken")
         return { token };
         });
 

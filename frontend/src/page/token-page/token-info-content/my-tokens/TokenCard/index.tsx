@@ -10,12 +10,20 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
 import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
-import { blue, blueGrey, grey } from "@mui/material/colors";
+import {
+  blue,
+  blueGrey,
+  green,
+  grey,
+  purple,
+  red,
+  yellow,
+} from "@mui/material/colors";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useReadContracts } from "wagmi";
@@ -35,12 +43,45 @@ type Props = {
   tokenAddress: string;
   creatorAddress: string;
   type: CreateTokenType["tokenType"];
+  select: CreateTokenType["select"];
 };
 
 const Root = styled(Box)(() => ({
   borderRadius: 6,
 }));
-const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
+
+type FeatureKeys = CreateTokenType["select"][number];
+
+type FeaturesType = {
+  [key in FeatureKeys]?: {
+    color: string;
+    title: string;
+  };
+};
+
+const featuresTemplate: FeaturesType = {
+  mint: {
+    color: green[100],
+    title: "Increase Supply",
+  },
+  burn: {
+    color: red[100],
+    title: "Burnable ",
+  },
+  liquidity: {
+    color: blue[100],
+    title: "Liquidity",
+  },
+  fee: {
+    color: yellow[100],
+    title: "CreatorCommission",
+  },
+  team: {
+    color: purple[100],
+    title: "Team Allocated",
+  },
+};
+const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
   const theme = useTheme();
   const [more, setMore] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -57,6 +98,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
   }
 
   const { updated } = context;
+
+  const features = useMemo(
+    () => select.map((item) => featuresTemplate[item]),
+    [select]
+  );
 
   useEffect(() => {
     if (updated) {
@@ -272,6 +318,11 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           address: tokenAddress as any,
           abi: custom_liquidity_abi,
           functionName: "owner",
+        },
+        {
+          address: tokenAddress as any,
+          abi: custom_liquidity_abi,
+          functionName: "teamAddress",
         },
       ],
     });
@@ -574,46 +625,18 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           </Box>
           <Box mt={2}>
             <Typography variant="caption">Special Features</Typography>
-            {(type !== "basic" && tempData && tempData[5]) ||
-            (tempData && tempData[6]) ||
-            (tempData && tempData[7]) ||
-            (tempData && tempData[8]) ? (
-              <Grid container columnGap={3}>
-                {type !== "basic" && tempData && tempData[5] ? (
-                  <Typography variant="subtitle1">
-                    Burn {(Number(tempData[5]) / 100).toString()} %
-                  </Typography>
-                ) : (
-                  ""
-                )}
-                {tempData && tempData[6] ? (
-                  <Typography variant="subtitle1">
-                    Fee {(Number(tempData[6]) / 100).toString()} %
-                  </Typography>
-                ) : (
-                  ""
-                )}
-                {tempData && tempData[7] ? (
-                  <Typography>
-                    Team: {abbreviateString(tempData[7] as string)}
-                  </Typography>
-                ) : (
-                  ""
-                )}
-                {tempData && tempData[8] ? (
-                  <Typography>
-                    Team Hold: {processBigint(tempData[8] as bigint)}
-                  </Typography>
-                ) : (
-                  ""
-                )}
-                {type === "custom_mint" && (
-                  <Chip label="mintable" size="small" color="info" />
-                )}
-              </Grid>
-            ) : (
-              <Typography variant="subtitle1"> No </Typography>
-            )}
+            <Grid container spacing={1}>
+              {features.map((item, index) => (
+                <Grid item key={index}>
+                  <Chip label={item?.title} sx={{ bgcolor: item?.color }} />
+                </Grid>
+              ))}
+              {features.length === 0 && (
+                <Grid item>
+                  <Typography>No</Typography>
+                </Grid>
+              )}
+            </Grid>
           </Box>
         </Box>
       </Collapse>
@@ -638,6 +661,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type }: Props) => {
           }
           pairAddress={tempData[9] ? (tempData[9] as string) : ""}
           owner={tempData[tempData.length - 1] as string}
+          select={select}
+          teamAddress={tempData[11] ? (tempData[11] as string) : ""}
         />
       )}
     </Root>

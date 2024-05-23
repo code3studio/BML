@@ -140,7 +140,7 @@ const TokenInfoContent = (_props: Props) => {
       teamAddress: "",
       teamAllocationPercentage: 0,
       duration: 0,
-      liquidityAllocation: 80,
+      liquidityAllocation: 0,
     },
   });
 
@@ -353,7 +353,15 @@ const TokenInfoContent = (_props: Props) => {
   } = useWaitForTransactionReceipt({
     hash,
   });
-
+  const getSelectArray = () => {
+    const selectArray = [];
+    if (burn) selectArray.push("burn");
+    if (fee) selectArray.push("fee");
+    if (mint) selectArray.push("mint");
+    if (team) selectArray.push("team");
+    if (liq) selectArray.push("liquidity");
+    return selectArray;
+  };
   useEffect(() => {
     const fetchData = async () => {
       if (data?.logs[0].address && isConfirmed && address) {
@@ -362,6 +370,7 @@ const TokenInfoContent = (_props: Props) => {
             tokenAddress: data.logs[0].address as string,
             creatorAddress: address as string,
             tokenType: type,
+            select: getSelectArray() as any,
           });
           reset();
           //@ts-ignore
@@ -371,6 +380,7 @@ const TokenInfoContent = (_props: Props) => {
               token_type: type,
               tokenAddress: data.logs[0].address,
               creatorAddress: address,
+              select: getSelectArray() as any,
             },
           ]);
         } catch (error) {
@@ -380,7 +390,18 @@ const TokenInfoContent = (_props: Props) => {
     };
 
     fetchData(); // Call the async function immediately
-  }, [data?.logs[0].address, isConfirmed, type, address, reset]);
+  }, [
+    data?.logs[0].address,
+    isConfirmed,
+    type,
+    address,
+    reset,
+    burn,
+    fee,
+    mint,
+    team,
+    liq,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -751,7 +772,7 @@ const TokenInfoContent = (_props: Props) => {
                             token
                           </Typography>
                         </Grid>
-                        <Grid item xs="auto">
+                        {/* <Grid item xs="auto">
                           <Controller
                             name="liquidityAllocation"
                             control={control}
@@ -774,7 +795,7 @@ const TokenInfoContent = (_props: Props) => {
                               />
                             )}
                           />
-                        </Grid>
+                        </Grid> */}
                       </Grid>
                     </BoxRoot>
                   </Collapse>
