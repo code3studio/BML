@@ -575,7 +575,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
             <Skeleton variant="text" width={40} />
           )}
 
-          <Box mt={2}>
+          <Box mt={1}>
             <Typography variant="caption">Created by</Typography>
             <Box display={"flex"} columnGap={1} alignItems={"center"}>
               <Typography variant="subtitle1">
@@ -596,7 +596,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
               />
             </Box>
           </Box>
-          <Box mt={2}>
+          <Box mt={1}>
             <Typography variant="caption">Holders</Typography>
             <Box display={"flex"} columnGap={1} alignItems={"center"}>
               <Typography variant="subtitle1">Token Holders Chart</Typography>
@@ -611,7 +611,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
               />
             </Box>
           </Box>
-          <Box mt={2}>
+          <Box mt={1}>
             <Typography variant="caption">Balance</Typography>
             <Typography variant="subtitle1">
               {/*@ts-ignore*/}
@@ -623,14 +623,21 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
           <Box mt={2}>
             <Typography variant="caption">Special Features</Typography>
             <Grid container spacing={1}>
-              {features.map((item, index) => (
-                <Grid item key={index}>
-                  <Chip
-                    label={`${item?.title} - `}
-                    sx={{ bgcolor: item?.color }}
-                  />
-                </Grid>
-              ))}
+              {tempData &&
+                features.map((item, index) => (
+                  <Grid item key={index}>
+                    <Chip
+                      label={`${item?.title} ${
+                        item?.title == "Burnable"
+                          ? ` - ${(Number(tempData[5]) / 100).toString()} %`
+                          : item?.title == "CreatorCommission"
+                          ? ` - ${(Number(tempData[6]) / 100).toString()} %`
+                          : ""
+                      }`}
+                      sx={{ bgcolor: item?.color }}
+                    />
+                  </Grid>
+                ))}
               {features.length === 0 && (
                 <Grid item>
                   <Typography>None</Typography>
