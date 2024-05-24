@@ -28,7 +28,7 @@ const MyTokens = ({ tokens }: Props) => {
   return (
     <Root>
       <Typography variant="h5" mb={4}>
-        MyToken List
+        MyToken List: {tokenList.length}
       </Typography>
       <Grid container spacing={4}>
         {tokenList.map((token, index) => (
