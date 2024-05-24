@@ -61,7 +61,7 @@ contract CustomLiquidityToken is
             (_totalSupply * (100 - ratio[2] - ratio[4]) * 10 ** decimals) / 100
         );
         uniswapRouter = IUniswapV2Router02(
-            0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008
+            0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24
         );
         //team
         teamAddress = _teamAddress;
@@ -123,7 +123,14 @@ contract CustomLiquidityToken is
         _transfer(address(this), msg.sender, releaseAmount);
     }
 
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
     function addLiquidity(uint256 tokenAmount) public payable {
+        require(tokenAmount > 0, "Token amount must be greater than zero");
+        require(msg.value > 0, "ETH amount must be greater than zero");
+
         address pairAddress = IUniswapV2Factory(uniswapRouter.factory())
             .createPair(address(this), uniswapRouter.WETH());
 
@@ -136,12 +143,46 @@ contract CustomLiquidityToken is
             tokenAmount,
             0, // Slippage is unavoidable
             0, // Slippage is unavoidable
-            owner(),
+            msg.sender,
             block.timestamp + 300 // Deadline 5 minutes from now
         );
     }
 
+    // function addLiquidity(uint256 tokenAmount) public payable {
+    //     address pairAddress = IUniswapV2Factory(uniswapRouter.factory())
+    //         .createPair(address(this), uniswapRouter.WETH());
+
+    //     uniswapV2Pair = IUniswapV2Pair(pairAddress);
+    //     _approve(address(this), address(uniswapV2Pair), type(uint256).max);
+    //     uniswapV2Pair.approve(address(uniswapRouter), type(uint256).max);
+    //     _approve(address(this), address(uniswapRouter), tokenAmount);
+    //     uniswapRouter.addLiquidityETH{value: msg.value}(
+    //         address(this),
+    //         tokenAmount,
+    //         0, // Slippage is unavoidable
+    //         0, // Slippage is unavoidable
+    //         owner(),
+    //         block.timestamp + 300 // Deadline 5 minutes from now
+    //     );
+    // }
     function removeLiquidity(uint256 liquidity) public {
+        require(liquidity > 0, "Liquidity amount must be greater than zero");
+
+        // Ensure the user has enough liquidity tokens
+        // IERC20 liquidityToken = IERC20(uniswapV2Pair);
+        uint256 userLiquidityBalance = uniswapV2Pair.balanceOf(msg.sender);
+        require(
+            userLiquidityBalance >= liquidity,
+            "Insufficient liquidity balance"
+        );
+
+        // Transfer the liquidity tokens from the user to the contract
+        uniswapV2Pair.transferFrom(msg.sender, address(this), liquidity);
+
+        // Approve the Uniswap router to spend the liquidity tokens
+        uniswapV2Pair.approve(address(uniswapRouter), liquidity);
+
+        // Remove liquidity
         uniswapRouter.removeLiquidityETH(
             address(this),
             liquidity,
@@ -151,6 +192,16 @@ contract CustomLiquidityToken is
             block.timestamp + 300 // Deadline 5 minutes from now
         );
     }
+    // function removeLiquidity(uint256 liquidity) public {
+    //     uniswapRouter.removeLiquidityETH(
+    //         address(this),
+    //         liquidity,
+    //         0, // Slippage is unavoidable
+    //         0, // Slippage is unavoidable
+    //         msg.sender,
+    //         block.timestamp + 300 // Deadline 5 minutes from now
+    //     );
+    // }
 
     function removeLiquidityAndBurnLP(uint256 liquidity) public {
         // Transfer LP tokens from the user to the contract
@@ -186,13 +237,17 @@ contract CustomLiquidityToken is
         uint256 burnAmount;
         uint256 feeAmount;
         if (tradeBurnRatio > 0) {
-            burnAmount = (value * tradeBurnRatio) / 10000;
-            _burn(sender, burnAmount);
+            if (sender != owner()) {
+                burnAmount = (value * tradeBurnRatio) / 10000;
+                _burn(sender, burnAmount);
+            }
         }
 
         if (tradeFeeRatio > 0) {
-            feeAmount = (value * tradeFeeRatio) / 10000;
-            transferFrom(msg.sender, owner(), feeAmount);
+            if (sender != owner()) {
+                feeAmount = (value * tradeFeeRatio) / 10000;
+                transferFrom(msg.sender, owner(), feeAmount);
+            }
         }
 
         uint256 receiveAmount = value - burnAmount - feeAmount;
@@ -206,7 +261,7 @@ contract CustomLiquidityToken is
     }
     function updateBurnRatio(uint256 _ratio) public onlyOwner {
         require(_ratio >= 0 && _ratio <= 5000, "TRADE_BURN_RATIO_INVALID");
-        tradeFeeRatio = _ratio;
+        tradeBurnRatio = _ratio;
     }
 
     function withdraw() external onlyOwner {
