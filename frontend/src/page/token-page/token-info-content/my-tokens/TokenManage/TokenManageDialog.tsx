@@ -44,17 +44,15 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
 import { DEAD_ADDRESS, NETWORK } from "../../../../../constant";
 import ethIcon from "../../../../../assets/crypto/eth@2x.png";
-import {
-  ContractContext,
-  ContractContextType,
-} from "../../../../../context/ContractProvider";
-import { toast } from "react-toastify";
+
 import {
   waitForTransactionReceipt,
   writeContract as writeCoreContract,
 } from "@wagmi/core";
 import { CreateTokenType } from "../../../../../types/generate";
 import moment from "moment";
+import { useContractDialog } from "../../../../../context/useContractDialog";
+import TransactionDialog from "../../../components/TransactionDialog";
 
 type Props = {
   open: boolean;
@@ -83,7 +81,6 @@ const Transition = React.forwardRef(function Transition(
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-let count = 0;
 
 const TokenManageDialog = ({
   open,
@@ -116,13 +113,7 @@ const TokenManageDialog = ({
   const [loading, setLoading] = useState<boolean>(false);
   const constConfig = useConfig();
 
-  const context = React.useContext<ContractContextType | undefined>(
-    ContractContext
-  );
-  if (!context) {
-    throw new Error("useThemeMode must be used within a ThemeProvider");
-  }
-  const { changeUpdate } = context;
+  const { changeUpdate, openDialog } = useContractDialog();
   useEffect(() => {
     setBurnRatio(burn);
     setFee(feeRatio);
@@ -182,11 +173,13 @@ const TokenManageDialog = ({
       const tr = await waitForTransactionReceipt(constConfig, {
         hash: res,
       });
+      localStorage.setItem("hash", res);
+      changeUpdate(true);
+      openDialog(true);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
-      changeUpdate(true);
     }
     // const result = await writeContract(
     //   {
@@ -262,7 +255,14 @@ const TokenManageDialog = ({
     useWaitForTransactionReceipt({
       hash,
     });
+  if (hash) {
+    localStorage.setItem("hash", hash as string);
+  }
   changeUpdate(isConfirmed);
+  if (isConfirmed) {
+    openDialog(true);
+  }
+
   const { data: liquidityAllocation } = useReadContracts({
     allowFailure: false,
     contracts: [
@@ -343,30 +343,6 @@ const TokenManageDialog = ({
     }
   };
 
-  if (isConfirmed && hash) {
-    count += 1;
-    if (count == 1) {
-      toast.success(
-        <>
-          <Grid container justifyContent={"center"} mt={2}>
-            <Typography variant="subtitle1">Operation succeeded.</Typography>
-          </Grid>
-          <Grid container justifyContent={"center"} mt={2}>
-            <Typography
-              variant="subtitle1"
-              component={"a"}
-              href={`${NETWORK}tx/${hash}`}
-              sx={{ color: "blue", textDecoration: "underline" }}
-              target="_blank"
-            >
-              Transaction
-            </Typography>
-          </Grid>
-        </>
-      );
-    }
-  }
-
   return (
     <Dialog
       open={open}
@@ -387,7 +363,7 @@ const TokenManageDialog = ({
       <Box sx={{ width: "100%" }}>
         {owner == DEAD_ADDRESS && (
           <Typography textAlign={"center"} color={"green"}>
-            The Contract is renounced. anymore edits can be made
+            The contract is renounced. No further edits can be made
           </Typography>
         )}
         <Collapse in={alert}>
@@ -924,6 +900,7 @@ const TokenManageDialog = ({
           </Button>
         </DialogActions>
       </Dialog>
+      <TransactionDialog />
     </Dialog>
   );
 };

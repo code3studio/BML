@@ -10,7 +10,7 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import metamask from "../../../../../assets/mt.svg";
@@ -34,10 +34,7 @@ import custom_liquidity_abi from "../../../../../smart_contract/custom_liquidity
 import { CreateTokenType } from "../../../../../types/generate";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TokenManageDialog from "../TokenManage/TokenManageDialog";
-import {
-  ContractContext,
-  ContractContextType,
-} from "../../../../../context/ContractProvider";
+import { useContractDialog } from "../../../../../context/useContractDialog";
 
 type Props = {
   tokenAddress: string;
@@ -56,6 +53,7 @@ type FeaturesType = {
   [key in FeatureKeys]?: {
     color: string;
     title: string;
+    volume: string;
   };
 };
 
@@ -63,22 +61,27 @@ const featuresTemplate: FeaturesType = {
   mint: {
     color: green[100],
     title: "Increase Supply",
+    volume: "",
   },
   burn: {
     color: red[100],
     title: "Burnable ",
+    volume: "",
   },
   liquidity: {
     color: blue[100],
     title: "Liquidity",
+    volume: "",
   },
   fee: {
     color: yellow[100],
     title: "CreatorCommission",
+    volume: "",
   },
   team: {
     color: purple[100],
     title: "Team Allocated",
+    volume: "",
   },
 };
 const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
@@ -90,19 +93,8 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
   const [name, setName] = useState<string>("");
   const [symbol, setSymbol] = useState<string>("");
   const [refetchTrigger, setRefetchTrigger] = useState(0);
-  const context = React.useContext<ContractContextType | undefined>(
-    ContractContext
-  );
-  if (!context) {
-    throw new Error("useThemeMode must be used within a ThemeProvider");
-  }
 
-  const { updated } = context;
-
-  const features = useMemo(
-    () => select.map((item) => featuresTemplate[item]),
-    [select]
-  );
+  const { updated } = useContractDialog();
 
   useEffect(() => {
     if (updated) {
@@ -317,17 +309,22 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
         {
           address: tokenAddress as any,
           abi: custom_liquidity_abi,
-          functionName: "owner",
+          functionName: "teamAddress",
         },
         {
           address: tokenAddress as any,
           abi: custom_liquidity_abi,
-          functionName: "teamAddress",
+          functionName: "owner",
         },
       ],
     });
     tempData = data;
   }
+
+  const features = useMemo(
+    () => select.map((item) => featuresTemplate[item]),
+    [select]
+  );
 
   function abbreviateString(str: string, maxLength = 3) {
     if (str.length <= maxLength) {
@@ -628,12 +625,15 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
             <Grid container spacing={1}>
               {features.map((item, index) => (
                 <Grid item key={index}>
-                  <Chip label={item?.title} sx={{ bgcolor: item?.color }} />
+                  <Chip
+                    label={`${item?.title} - `}
+                    sx={{ bgcolor: item?.color }}
+                  />
                 </Grid>
               ))}
               {features.length === 0 && (
                 <Grid item>
-                  <Typography>No</Typography>
+                  <Typography>None</Typography>
                 </Grid>
               )}
             </Grid>

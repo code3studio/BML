@@ -419,8 +419,6 @@ const TokenInfoContent = (_props: Props) => {
     }
   }, [isConfirmed]);
 
-  console.log("isConfirmed==", isConfirmed);
-
   const getUserTokens = async (address: string) => {
     try {
       let res = await getTokens(address);
@@ -884,7 +882,7 @@ const TokenInfoContent = (_props: Props) => {
             mt={2}
             textAlign={"center"}
             component={"a"}
-            href={`${NETWORK}/token/${data?.logs[0].address}`}
+            href={`${NETWORK}tx/${hash}`}
             target="_blank"
             sx={{ textDecoration: "underline", color: "blue" }}
           >
@@ -892,6 +890,7 @@ const TokenInfoContent = (_props: Props) => {
           </Typography>
         </Grid>
       </Dialog>
+      {/* <TransactionDialog /> */}
     </>
   );
 };

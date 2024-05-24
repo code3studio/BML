@@ -10,6 +10,7 @@ import { ContractContext } from "./context/ContractProvider.ts";
 const AppWrapper = () => {
   const [themeMode, setThemeMode] = useState<PaletteMode>("light");
   const [updated, setUpdated] = useState<boolean>(false);
+  const [hash, setHash] = useState<boolean>(false);
   const toggleThemeMode = () => {
     setThemeMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
@@ -17,13 +18,18 @@ const AppWrapper = () => {
   const changeUpdate = (e: boolean) => {
     setUpdated(e);
   };
+  const openDialog = (e: boolean) => {
+    setHash(e);
+  };
 
   return (
     // <React.StrictMode>
     <ThemeContext.Provider value={{ themeMode, toggleThemeMode }}>
       {/* <PageContextProvider> */}
       <ThemeProvider theme={customTheme(themeMode)}>
-        <ContractContext.Provider value={{ updated, changeUpdate }}>
+        <ContractContext.Provider
+          value={{ updated, changeUpdate, hash, openDialog }}
+        >
           <App />
         </ContractContext.Provider>
         {/* <TonConnectUIProvider manifestUrl={import.meta.env.VITE_API_URL +"manifest.json"}> */}
