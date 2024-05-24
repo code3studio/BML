@@ -65,7 +65,7 @@ const featuresTemplate: FeaturesType = {
   },
   burn: {
     color: red[100],
-    title: "Burnable ",
+    title: "Burnable",
     volume: "",
   },
   liquidity: {
@@ -305,11 +305,6 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
           address: tokenAddress as any,
           abi: custom_liquidity_abi,
           functionName: "uniswapV2Pair",
-        },
-        {
-          address: tokenAddress as any,
-          abi: custom_liquidity_abi,
-          functionName: "teamAddress",
         },
         {
           address: tokenAddress as any,
@@ -669,7 +664,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
           pairAddress={tempData[9] ? (tempData[9] as string) : ""}
           owner={tempData[tempData.length - 1] as string}
           select={select}
-          teamAddress={tempData[11] ? (tempData[11] as string) : ""}
+          teamAddress={tempData[7] ? (tempData[7] as string) : ""}
         />
       )}
     </Root>
