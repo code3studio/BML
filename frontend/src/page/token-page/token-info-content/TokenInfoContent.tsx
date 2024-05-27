@@ -373,6 +373,12 @@ const TokenInfoContent = (_props: Props) => {
             select: getSelectArray() as any,
           });
           reset();
+          setBurn(false);
+          setFee(false);
+          setMint(false);
+          setTeam(false);
+          setLiq(false);
+          setType("basic");
           //@ts-ignore
           setTokens([
             ...tokens,

@@ -6,6 +6,7 @@ import {
   Toolbar,
   Typography,
   styled,
+  useTheme,
 } from "@mui/material";
 import discord from "../../assets/discord.svg";
 import twitter from "../../assets/twitter.svg";
@@ -22,6 +23,7 @@ const Root = styled(AppBar)(({ theme }) => ({
 }));
 
 const Footer = (_props: Props) => {
+  const theme = useTheme();
   return (
     <Root>
       <Toolbar variant="dense">
@@ -32,7 +34,12 @@ const Footer = (_props: Props) => {
             alignItems={"center"}
             p={1}
           >
-            <Typography variant="h6">Tokenator</Typography>
+            <Typography
+              variant="h6"
+              sx={{ color: theme.palette.mode === "dark" ? "white" : "black" }}
+            >
+              Tokenator
+            </Typography>
             <Grid item>
               <IconButton>
                 <img src={discord} alt="discord" width={40} />
