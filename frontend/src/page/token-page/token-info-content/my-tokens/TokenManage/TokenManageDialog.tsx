@@ -9,12 +9,15 @@ import {
   DialogTitle,
   Divider,
   Grid,
+  Hidden,
   InputAdornment,
   Skeleton,
   Slide,
   TextField,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import React, { useEffect, useState } from "react";
@@ -112,6 +115,9 @@ const TokenManageDialog = ({
   const [confirm, setConfirm] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const constConfig = useConfig();
+  const theme = useTheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { changeUpdate, openDialog } = useContractDialog();
   useEffect(() => {
@@ -395,10 +401,12 @@ const TokenManageDialog = ({
             container
             alignItems={"center"}
             justifyContent={"space-between"}
+            spacing={2}
           >
-            <Grid item md={5}>
+            <Grid item md={5} xs={12}>
               <TextField
                 type="number"
+                fullWidth
                 disabled={owner == DEAD_ADDRESS}
                 InputProps={{
                   endAdornment: (
@@ -413,7 +421,7 @@ const TokenManageDialog = ({
                 value={fee}
               />
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} xs={12}>
               <Button
                 disabled={owner == DEAD_ADDRESS}
                 onClick={handleChangeFee}
@@ -431,11 +439,18 @@ const TokenManageDialog = ({
             alignItems={"center"}
             justifyContent={"space-between"}
             mt={2}
+            spacing={2}
           >
-            <Grid item md={5}>
+            <Grid item md={5} xs={12}>
               <TextField
                 type="number"
                 disabled={owner == DEAD_ADDRESS}
+                fullWidth
+                helperText={
+                  isMobile
+                    ? "A percentage of tokens will be sent to the burn address 0x00...for each on-chain transfer"
+                    : ""
+                }
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">%</InputAdornment>
@@ -449,7 +464,7 @@ const TokenManageDialog = ({
                 value={burnRatio}
               />
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} xs={12}>
               <Button
                 onClick={handleChangeBurnRate}
                 fullWidth
@@ -459,6 +474,13 @@ const TokenManageDialog = ({
                 Change Burn Rate Fee
               </Button>
             </Grid>
+            <Hidden smDown>
+              <Typography variant="caption" mx={2}>
+                {" "}
+                A percentage of tokens will be sent to the burn address 0x00...
+                for each on-chain transfer
+              </Typography>
+            </Hidden>
           </Grid>
         )}
         {select.includes("burn") && (
@@ -467,16 +489,19 @@ const TokenManageDialog = ({
             alignItems={"center"}
             justifyContent={"space-between"}
             mt={2}
+            spacing={2}
           >
-            <Grid item md={5}>
+            <Grid item md={5} xs={12}>
               <TextField
                 type="number"
                 disabled={owner == DEAD_ADDRESS}
+                fullWidth
                 // InputProps={{
                 //   endAdornment: (
                 //     <InputAdornment position="end">%</InputAdornment>
                 //   ),
                 // }}
+
                 onChange={(e) => {
                   {
                     const value = e.target.value;
@@ -487,7 +512,7 @@ const TokenManageDialog = ({
                 value={burnAmount}
               />
             </Grid>
-            <Grid item md={6}>
+            <Grid item md={6} xs={12}>
               <Button
                 disabled={owner == DEAD_ADDRESS}
                 onClick={handleBurn}
@@ -507,11 +532,13 @@ const TokenManageDialog = ({
               alignItems={"center"}
               justifyContent={"space-between"}
               mt={2}
+              spacing={2}
             >
-              <Grid item md={5}>
+              <Grid item md={5} xs={12}>
                 <TextField
                   type="number"
                   disabled={owner == DEAD_ADDRESS}
+                  fullWidth
                   // InputProps={{
                   //   endAdornment: (
                   //     <InputAdornment position="end">%</InputAdornment>
@@ -527,7 +554,7 @@ const TokenManageDialog = ({
                   value={mintAmount}
                 />
               </Grid>
-              <Grid item md={6}>
+              <Grid item md={6} xs={12}>
                 <Button
                   disabled={owner == DEAD_ADDRESS}
                   onClick={handleMint}
@@ -550,7 +577,7 @@ const TokenManageDialog = ({
                 mt={2}
                 // alignItems={"center"}
               >
-                <Grid item md={12}>
+                <Grid item md={12} xs={12}>
                   <Grid container flexDirection={"column"}>
                     {" "}
                     {liquidityAllocation && (
@@ -670,7 +697,7 @@ const TokenManageDialog = ({
                     />
                   </Grid>
                 </Grid>
-                <Grid item md={12}>
+                <Grid item md={12} xs={12}>
                   <Button
                     disabled={owner == DEAD_ADDRESS}
                     sx={{ mt: 2 }}
@@ -755,11 +782,13 @@ const TokenManageDialog = ({
                   justifyContent={"space-between"}
                   alignItems={"center"}
                   mt={2}
+                  spacing={2}
                 >
-                  <Grid item md={5}>
+                  <Grid item md={5} xs={12}>
                     <TextField
                       disabled={owner == DEAD_ADDRESS}
                       type="number"
+                      fullWidth
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">UNI-V2</InputAdornment>
@@ -775,7 +804,7 @@ const TokenManageDialog = ({
                       value={burnLP}
                     />
                   </Grid>
-                  <Grid item md={6}>
+                  <Grid item md={6} xs={12}>
                     <Button
                       disabled={owner == DEAD_ADDRESS}
                       onClick={handleLPBurn}

@@ -1,5 +1,5 @@
 import {
-  Box,
+  AppBar,
   Container,
   Grid,
   IconButton,
@@ -11,13 +11,14 @@ import discord from "../../assets/discord.svg";
 import twitter from "../../assets/twitter.svg";
 
 type Props = {};
-const Root = styled(Box)(({ theme }) => ({
+const Root = styled(AppBar)(({ theme }) => ({
   //   display: "flex",
   position: "fixed",
   bottom: 0,
+  top: "auto",
   backgroundColor: theme.palette.mode === "dark" ? "#3c3744" : "#cce9f9",
-  right: 0,
-  left: 0,
+  // right: 0,
+  // left: 0,
 }));
 
 const Footer = (_props: Props) => {

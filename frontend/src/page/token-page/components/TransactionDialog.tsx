@@ -32,7 +32,7 @@ const TransactionDialog = (_props: Props) => {
       <img src={successImg} width={160} />
       <Grid container justifyContent={"center"} flexDirection={"column"}>
         <Typography textAlign={"center"} mt={2} variant="subtitle1">
-          The Operation is succeeded
+          The operation has succeeded.
         </Typography>
 
         <Typography

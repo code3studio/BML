@@ -9,7 +9,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import TokenIcon from "@mui/icons-material/Token";
 import { ThemeContext, ThemeContextType } from "../../context/themeContext";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import ModeNightIcon from "@mui/icons-material/ModeNight";
@@ -50,34 +49,10 @@ function ResponsiveAppBar() {
   const { setThemeMode } = useWeb3ModalTheme();
 
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" sx={{ py: { xs: 1, sm: 1, md: 0 } }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "CuteDino",
-              // fontWeight: 700,
-              letterSpacing: ".15rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            TOKENATOR
-          </Typography>
-          <img
-            src={logo}
-            width={30}
-            height={30}
-            style={{ marginRight: "20px" }}
-          />
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -85,6 +60,7 @@ function ResponsiveAppBar() {
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
               color="inherit"
+              sx={{ mr: 4 }}
             >
               <MenuIcon />
             </IconButton>
@@ -113,7 +89,32 @@ function ResponsiveAppBar() {
               ))}
             </Menu>
           </Box>
-          <TokenIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontFamily: "CuteDino",
+              // fontWeight: 700,
+              letterSpacing: ".15rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            TOKENATOR
+          </Typography>
+
+          <img
+            src={logo}
+            width={30}
+            height={30}
+            style={{ marginRight: "20px" }}
+          />
+
+          {/* <TokenIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} /> */}
           <Typography
             variant="h5"
             noWrap
@@ -121,7 +122,7 @@ function ResponsiveAppBar() {
             href="/"
             sx={{
               mr: 2,
-              display: { xs: "flex", md: "none" },
+              display: { xs: "none", md: "none" },
               flexGrow: 1,
               // fontFamily: "monospace",
               fontWeight: 700,
@@ -133,6 +134,7 @@ function ResponsiveAppBar() {
           >
             TOKENATOR
           </Typography>
+
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
@@ -175,12 +177,13 @@ function ResponsiveAppBar() {
               ))}
             </Menu>
           </Box>
+          <Box flexGrow={1} />
           <IconButton
             onClick={() => {
               toggleThemeMode();
               setThemeMode(!themeMode as any);
             }}
-            sx={{ p: 0, mx: 3 }}
+            sx={{ p: 0, mx: 1 }}
           >
             {theme.palette.mode === "dark" ? (
               <LightModeIcon />
@@ -191,7 +194,10 @@ function ResponsiveAppBar() {
           {/* <Button variant="contained" color="secondary" onClick={() => open()}>
             Connect Wallet{" "}
           </Button> */}
-          <w3m-button />
+          <w3m-button
+            size="sm"
+            balance={theme.breakpoints.down("sm") ? "hide" : "show"}
+          />
         </Toolbar>
       </Container>
     </AppBar>
