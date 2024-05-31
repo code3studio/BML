@@ -87,6 +87,38 @@ function Chart({ liquidity, owner, teamAllocation, total }: Props) {
   return (
     <Grid container justifyContent={"center"} mt={4}>
       <Typography variant="subtitle1">Tokenomics</Typography>
+      <Grid container justifyContent={"space-between"} alignItems={"center"}>
+        <Grid item>
+          <Typography>Creator:</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>{owner}</Typography>
+        </Grid>
+      </Grid>
+      <Grid container justifyContent={"space-between"} alignItems={"center"}>
+        <Grid item>
+          <Typography>Liquidity:</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>{liquidity}</Typography>
+        </Grid>
+      </Grid>
+      <Grid container justifyContent={"space-between"} alignItems={"center"}>
+        <Grid item>
+          <Typography>Team:</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>{teamAllocation}</Typography>
+        </Grid>
+      </Grid>
+      <Grid container justifyContent={"space-between"} alignItems={"center"}>
+        <Grid item>
+          <Typography>Other:</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>{total - liquidity - owner - teamAllocation}</Typography>
+        </Grid>
+      </Grid>
       <div id="chartdiv" style={{ width: "300px", height: "300px" }}></div>
     </Grid>
   );

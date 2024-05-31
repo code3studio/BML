@@ -607,7 +607,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
             </Box>
           </Box>
           <Box mt={1}>
-            <Typography variant="caption">Balance</Typography>
+            <Typography variant="caption">Creator Balance</Typography>
             <Typography variant="subtitle1">
               {/*@ts-ignore*/}
               {tempData && tempData[4]

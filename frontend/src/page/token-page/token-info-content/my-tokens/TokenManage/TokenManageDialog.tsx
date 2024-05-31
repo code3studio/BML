@@ -245,7 +245,7 @@ const TokenManageDialog = ({
       address: manageAddress as any,
       abi: custom_abi,
       functionName: "updateFee",
-      args: [(feeRatio ? feeRatio * 100 : 0).toString()],
+      args: [(fee ? fee * 100 : 0).toString()],
     });
   };
 
@@ -484,45 +484,51 @@ const TokenManageDialog = ({
           </Grid>
         )}
         {select.includes("burn") && (
-          <Grid
-            container
-            alignItems={"center"}
-            justifyContent={"space-between"}
-            mt={2}
-            spacing={2}
-          >
-            <Grid item md={5} xs={12}>
-              <TextField
-                type="number"
-                disabled={owner == DEAD_ADDRESS}
-                fullWidth
-                // InputProps={{
-                //   endAdornment: (
-                //     <InputAdornment position="end">%</InputAdornment>
-                //   ),
-                // }}
+          <>
+            <Grid
+              container
+              alignItems={"center"}
+              justifyContent={"space-between"}
+              mt={2}
+              spacing={2}
+            >
+              <Grid item md={5} xs={12}>
+                <TextField
+                  type="number"
+                  disabled={owner == DEAD_ADDRESS}
+                  fullWidth
+                  // InputProps={{
+                  //   endAdornment: (
+                  //     <InputAdornment position="end">%</InputAdornment>
+                  //   ),
+                  // }}
 
-                onChange={(e) => {
-                  {
-                    const value = e.target.value;
+                  onChange={(e) => {
+                    {
+                      const value = e.target.value;
 
-                    setBurnAmount(value === "" ? NaN : Number(value));
-                  }
-                }}
-                value={burnAmount}
-              />
+                      setBurnAmount(value === "" ? NaN : Number(value));
+                    }
+                  }}
+                  value={burnAmount}
+                />
+              </Grid>
+              <Grid item md={6} xs={12}>
+                <Button
+                  disabled={owner == DEAD_ADDRESS}
+                  onClick={handleBurn}
+                  fullWidth
+                  variant="contained"
+                >
+                  Burn
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item md={6} xs={12}>
-              <Button
-                disabled={owner == DEAD_ADDRESS}
-                onClick={handleBurn}
-                fullWidth
-                variant="contained"
-              >
-                Burn
-              </Button>
-            </Grid>
-          </Grid>
+            <Typography variant="caption">
+              A portion of the tokens will be burned based on the amount
+              selected by the user.
+            </Typography>
+          </>
         )}
         {select.includes("mint") && (
           <>
