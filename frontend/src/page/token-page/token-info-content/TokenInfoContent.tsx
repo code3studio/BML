@@ -551,7 +551,7 @@ const TokenInfoContent = (_props: Props) => {
                           }}
                         />
                       }
-                      label="Creator commissions"
+                      label="Creator Commissions"
                     />
                     <FormControlLabel
                       control={
@@ -624,7 +624,7 @@ const TokenInfoContent = (_props: Props) => {
                     <BoxRoot>
                       <Grid container alignItems={"center"}>
                         <Grid item xs>
-                          <Typography>Creator commissions:</Typography>
+                          <Typography>Creator Commissions:</Typography>
                           <Typography variant="caption">
                             A percentage of tokens will be sent to the creator's
                             address for each on-chain transfer

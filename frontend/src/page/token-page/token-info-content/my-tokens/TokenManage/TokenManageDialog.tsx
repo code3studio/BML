@@ -428,7 +428,7 @@ const TokenManageDialog = ({
                 fullWidth
                 variant="contained"
               >
-                Change Creator commissions
+                Change Creator Commissions
               </Button>
             </Grid>
           </Grid>
