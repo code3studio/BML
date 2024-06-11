@@ -576,146 +576,145 @@ const TokenManageDialog = ({
         <Divider sx={{ mt: 2 }} />
         {select.includes("liquidity") && (
           <>
-            {pairAddress.includes("0x000000000") ? (
-              <Grid
-                container
-                // justifyContent={"space-between"}
-                mt={2}
-                // alignItems={"center"}
-              >
-                <Grid item md={12} xs={12}>
-                  <Grid container flexDirection={"column"}>
-                    {" "}
-                    {liquidityAllocation && (
-                      <TextField
-                        disabled={owner == DEAD_ADDRESS}
-                        helperText={`You can add a maximum of ${processBigint(
-                          liquidityAllocation[0] as bigint
-                        )} to the liquidity`}
-                        type="number"
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              {symbol}
-                            </InputAdornment>
-                          ),
-                        }}
-                        onChange={(e) => {
-                          {
-                            const value = e.target.value;
-
-                            setTokenAmount(value === "" ? NaN : Number(value));
-                          }
-                        }}
-                        value={tokenAmount}
-                      />
-                    )}
-                    {liquidityAllocation && (
-                      <Box
-                        display={"flex"}
-                        justifyContent={"space-between"}
-                        mb={2}
-                        mt={0.5}
-                      >
-                        <Chip
-                          label="20%"
-                          disabled={owner == DEAD_ADDRESS}
-                          onClick={() => {
-                            setTokenAmount(
-                              Number(
-                                processBigint(liquidityAllocation[0] as bigint)
-                              ) * 0.2
-                            );
-                          }}
-                          color="info"
-                          size="small"
-                        />
-                        <Chip
-                          label="40%"
-                          disabled={owner == DEAD_ADDRESS}
-                          onClick={() => {
-                            setTokenAmount(
-                              Number(
-                                processBigint(liquidityAllocation[0] as bigint)
-                              ) * 0.4
-                            );
-                          }}
-                          color="info"
-                          size="small"
-                        />
-                        <Chip
-                          label="60%"
-                          disabled={owner == DEAD_ADDRESS}
-                          onClick={() => {
-                            setTokenAmount(
-                              Number(
-                                processBigint(liquidityAllocation[0] as bigint)
-                              ) * 0.6
-                            );
-                          }}
-                          color="info"
-                          size="small"
-                        />
-                        <Chip
-                          label="80%"
-                          disabled={owner == DEAD_ADDRESS}
-                          onClick={() => {
-                            setTokenAmount(
-                              Number(
-                                processBigint(liquidityAllocation[0] as bigint)
-                              ) * 0.8
-                            );
-                          }}
-                          color="info"
-                          size="small"
-                        />
-                        <Chip
-                          label="100%"
-                          disabled={owner == DEAD_ADDRESS}
-                          onClick={() => {
-                            setTokenAmount(
-                              Number(
-                                processBigint(liquidityAllocation[0] as bigint)
-                              ) * 1
-                            );
-                          }}
-                          color="info"
-                          size="small"
-                        />
-                      </Box>
-                    )}
+            <Grid
+              container
+              // justifyContent={"space-between"}
+              mt={2}
+              // alignItems={"center"}
+            >
+              <Grid item md={12} xs={12}>
+                <Grid container flexDirection={"column"}>
+                  {" "}
+                  {liquidityAllocation && (
                     <TextField
-                      type="number"
                       disabled={owner == DEAD_ADDRESS}
+                      helperText={`You can add a maximum of ${processBigint(
+                        liquidityAllocation[0] as bigint
+                      )} to the liquidity`}
+                      type="number"
                       InputProps={{
                         endAdornment: (
-                          <InputAdornment position="end">eth</InputAdornment>
+                          <InputAdornment position="end">
+                            {symbol}
+                          </InputAdornment>
                         ),
                       }}
                       onChange={(e) => {
                         {
                           const value = e.target.value;
 
-                          setEthAmount(value === "" ? NaN : Number(value));
+                          setTokenAmount(value === "" ? NaN : Number(value));
                         }
                       }}
-                      value={ethAmount}
+                      value={tokenAmount}
                     />
-                  </Grid>
-                </Grid>
-                <Grid item md={12} xs={12}>
-                  <Button
+                  )}
+                  {liquidityAllocation && (
+                    <Box
+                      display={"flex"}
+                      justifyContent={"space-between"}
+                      mb={2}
+                      mt={0.5}
+                    >
+                      <Chip
+                        label="20%"
+                        disabled={owner == DEAD_ADDRESS}
+                        onClick={() => {
+                          setTokenAmount(
+                            Number(
+                              processBigint(liquidityAllocation[0] as bigint)
+                            ) * 0.2
+                          );
+                        }}
+                        color="info"
+                        size="small"
+                      />
+                      <Chip
+                        label="40%"
+                        disabled={owner == DEAD_ADDRESS}
+                        onClick={() => {
+                          setTokenAmount(
+                            Number(
+                              processBigint(liquidityAllocation[0] as bigint)
+                            ) * 0.4
+                          );
+                        }}
+                        color="info"
+                        size="small"
+                      />
+                      <Chip
+                        label="60%"
+                        disabled={owner == DEAD_ADDRESS}
+                        onClick={() => {
+                          setTokenAmount(
+                            Number(
+                              processBigint(liquidityAllocation[0] as bigint)
+                            ) * 0.6
+                          );
+                        }}
+                        color="info"
+                        size="small"
+                      />
+                      <Chip
+                        label="80%"
+                        disabled={owner == DEAD_ADDRESS}
+                        onClick={() => {
+                          setTokenAmount(
+                            Number(
+                              processBigint(liquidityAllocation[0] as bigint)
+                            ) * 0.8
+                          );
+                        }}
+                        color="info"
+                        size="small"
+                      />
+                      <Chip
+                        label="100%"
+                        disabled={owner == DEAD_ADDRESS}
+                        onClick={() => {
+                          setTokenAmount(
+                            Number(
+                              processBigint(liquidityAllocation[0] as bigint)
+                            ) * 1
+                          );
+                        }}
+                        color="info"
+                        size="small"
+                      />
+                    </Box>
+                  )}
+                  <TextField
+                    type="number"
                     disabled={owner == DEAD_ADDRESS}
-                    sx={{ mt: 2 }}
-                    variant="contained"
-                    fullWidth
-                    onClick={handleAddLiquidity}
-                  >
-                    Add Liquidity
-                  </Button>
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">eth</InputAdornment>
+                      ),
+                    }}
+                    onChange={(e) => {
+                      {
+                        const value = e.target.value;
+
+                        setEthAmount(value === "" ? NaN : Number(value));
+                      }
+                    }}
+                    value={ethAmount}
+                  />
                 </Grid>
               </Grid>
-            ) : (
+              <Grid item md={12} xs={12}>
+                <Button
+                  disabled={owner == DEAD_ADDRESS}
+                  sx={{ mt: 2 }}
+                  variant="contained"
+                  fullWidth
+                  onClick={handleAddLiquidity}
+                >
+                  Add Liquidity
+                </Button>
+              </Grid>
+            </Grid>
+            {!pairAddress.includes("0x000000000") && (
               <>
                 <Grid
                   mt={2}
