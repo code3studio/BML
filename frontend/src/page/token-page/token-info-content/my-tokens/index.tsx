@@ -32,7 +32,7 @@ const MyTokens = ({ tokens }: Props) => {
       </Typography>
       <Grid container spacing={4}>
         {tokenList.map((token, index) => (
-          <Grid item lg={3} md={4} sm={6} xs={12} key={index}>
+          <Grid item md={4} sm={6} xs={12} key={index}>
             <TokenCard
               tokenAddress={token.tokenAddress}
               creatorAddress={token.creatorAddress}
