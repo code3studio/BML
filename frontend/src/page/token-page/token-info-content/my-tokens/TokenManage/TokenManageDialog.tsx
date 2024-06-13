@@ -74,6 +74,7 @@ type Props = {
   owner: string;
   select: CreateTokenType["select"];
   teamAddress: string;
+  walletBalance: string;
 };
 
 const Transition = React.forwardRef(function Transition(
@@ -101,8 +102,10 @@ const TokenManageDialog = ({
   owner,
   select,
   teamAddress,
+  walletBalance,
 }: Props) => {
   let tempData: any;
+  console.log("balance==", walletBalance);
   const [fee, setFee] = useState<number>(0);
   const [burnRatio, setBurnRatio] = useState<number>(0);
   const [tokenAmount, setTokenAmount] = useState<number>(0);
@@ -735,7 +738,9 @@ const TokenManageDialog = ({
                 </Grid>
                 <Grid item md={12} xs={12}>
                   <Button
-                    disabled={owner == DEAD_ADDRESS}
+                    disabled={
+                      owner == DEAD_ADDRESS || Number(walletBalance) < ethAmount
+                    }
                     sx={{ mt: 2 }}
                     variant="contained"
                     fullWidth
@@ -936,7 +941,10 @@ const TokenManageDialog = ({
                   </Grid>
                   <Grid item md={12} xs={12}>
                     <Button
-                      disabled={owner == DEAD_ADDRESS}
+                      disabled={
+                        owner == DEAD_ADDRESS ||
+                        Number(walletBalance) < ethAmount
+                      }
                       sx={{ mt: 2 }}
                       variant="contained"
                       fullWidth

@@ -2,6 +2,7 @@ import { Box, Grid, Typography, styled } from "@mui/material";
 import TokenCard from "./TokenCard";
 import { CreateTokenResponseType } from "../../../../types/generate";
 import { useMemo } from "react";
+import { useAccount, useBalance } from "wagmi";
 
 type Props = {
   tokens: CreateTokenResponseType[];
@@ -10,6 +11,9 @@ const Root = styled(Box)(() => ({
   padding: "30px 0px",
 }));
 const MyTokens = ({ tokens }: Props) => {
+  const { address } = useAccount();
+  const { data } = useBalance({ address });
+  console.log("balance==", data);
   const tokenList: CreateTokenResponseType[] = useMemo(() => {
     const uniqueArray = tokens.reduce((accumulator, current) => {
       if (
@@ -25,6 +29,7 @@ const MyTokens = ({ tokens }: Props) => {
     }, []);
     return uniqueArray;
   }, [tokens]);
+
   return (
     <Root>
       <Typography variant="h5" mb={4}>
@@ -39,6 +44,7 @@ const MyTokens = ({ tokens }: Props) => {
               // @ts-ignore
               type={token.token_type}
               select={token.select}
+              balance={data?.formatted ?? "0"}
             />
           </Grid>
         ))}

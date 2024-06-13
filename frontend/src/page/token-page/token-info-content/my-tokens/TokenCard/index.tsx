@@ -41,6 +41,7 @@ type Props = {
   creatorAddress: string;
   type: CreateTokenType["tokenType"];
   select: CreateTokenType["select"];
+  balance: string;
 };
 
 const Root = styled(Box)(() => ({
@@ -84,7 +85,13 @@ const featuresTemplate: FeaturesType = {
     volume: "",
   },
 };
-const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
+const TokenCard = ({
+  tokenAddress,
+  creatorAddress,
+  type,
+  select,
+  balance,
+}: Props) => {
   const theme = useTheme();
   const [more, setMore] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -665,6 +672,7 @@ const TokenCard = ({ tokenAddress, creatorAddress, type, select }: Props) => {
           owner={tempData[tempData.length - 1] as string}
           select={select}
           teamAddress={tempData[7] ? (tempData[7] as string) : ""}
+          walletBalance={balance}
         />
       )}
     </Root>
