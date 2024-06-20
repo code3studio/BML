@@ -56,6 +56,7 @@ import { CreateTokenType } from "../../../../../types/generate";
 import moment from "moment";
 import { useContractDialog } from "../../../../../context/useContractDialog";
 import TransactionDialog from "../../../components/TransactionDialog";
+import { sleep } from "../../../../../services/api";
 
 type Props = {
   open: boolean;
@@ -171,6 +172,8 @@ const TokenManageDialog = ({
       const trr = await waitForTransactionReceipt(constConfig, {
         hash: result,
       });
+
+      await sleep(5000);
       //@ts-ignore
       const res = await writeCoreContract(constConfig, {
         address: manageAddress as any,

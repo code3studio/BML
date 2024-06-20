@@ -15,3 +15,7 @@ export const getTokens = (creatorAddress: string) => {
 export const getCounts = () => {
   return axios.get(`${BACKEND_API}/get_count`);
 };
+
+export const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};

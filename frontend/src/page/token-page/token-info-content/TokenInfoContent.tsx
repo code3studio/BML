@@ -83,6 +83,9 @@ const FormRoot = styled(Paper)(() => ({
   // color: "white",
 }));
 
+const min = 0.001;
+const max = 10;
+
 const TokenInfoContent = (_props: Props) => {
   const { data: hash, writeContract, error } = useWriteContract();
   const { address } = useAccount();
@@ -364,7 +367,7 @@ const TokenInfoContent = (_props: Props) => {
   };
   useEffect(() => {
     const fetchData = async () => {
-      if (data?.logs[0].address && isConfirmed && address) {
+      if (data?.logs[0].address && isConfirmed && success && address) {
         try {
           await createContract({
             tokenAddress: data.logs[0].address as string,
@@ -407,6 +410,7 @@ const TokenInfoContent = (_props: Props) => {
     mint,
     team,
     liq,
+    success,
   ]);
 
   useEffect(() => {
@@ -531,7 +535,7 @@ const TokenInfoContent = (_props: Props) => {
                           checked={burn}
                           onChange={(e) => {
                             e.target.checked
-                              ? setValue("burnRate", 0.1)
+                              ? setValue("burnRate", 0.01)
                               : setValue("burnRate", 0);
                             setBurn(e.target.checked);
                           }}
@@ -545,7 +549,7 @@ const TokenInfoContent = (_props: Props) => {
                           checked={fee}
                           onChange={(e) => {
                             e.target.checked
-                              ? setValue("tradingFee", 0.1)
+                              ? setValue("tradingFee", 0.01)
                               : setValue("tradingFee", 0);
                             setFee(e.target.checked);
                           }}
@@ -589,7 +593,7 @@ const TokenInfoContent = (_props: Props) => {
                           <Typography>Burn:</Typography>
                           <Typography variant="caption">
                             A percentage of tokens will be sent to the burn
-                            address for each on-chain transfer
+                            address for each on-chain transfer ( max:10)
                           </Typography>
                         </Grid>
                         <Grid item xs="auto">
@@ -600,9 +604,11 @@ const TokenInfoContent = (_props: Props) => {
                               <PercentageText
                                 type="number"
                                 onChange={(e) => {
-                                  const value = e.target.value;
+                                  let value = Number(e.target.value);
+                                  if (value > max) value = max;
+
                                   // If the input is empty, set it to an empty string
-                                  onChange(value === "" ? NaN : Number(value));
+                                  onChange(isNaN(value) ? NaN : value);
                                 }}
                                 {...field}
                                 InputProps={{
@@ -612,6 +618,7 @@ const TokenInfoContent = (_props: Props) => {
                                     </InputAdornment>
                                   ),
                                 }}
+                                inputProps={{ max }}
                               />
                             )}
                           />
@@ -626,8 +633,9 @@ const TokenInfoContent = (_props: Props) => {
                         <Grid item xs>
                           <Typography>Creator Commissions:</Typography>
                           <Typography variant="caption">
-                            A percentage of tokens will be sent to the creator's
-                            address for each on-chain transfer
+                            A portion of tokens will be sent to the creator's
+                            address for each on-chain transfer, including swaps
+                            on decentralized exchanges (DEXs).( max:10 %)
                           </Typography>
                         </Grid>
                         <Grid item xs="auto">
@@ -638,9 +646,10 @@ const TokenInfoContent = (_props: Props) => {
                               <PercentageText
                                 type="number"
                                 onChange={(e) => {
-                                  const value = e.target.value;
+                                  let value = Number(e.target.value);
+                                  if (value > max) value = max;
                                   // If the input is empty, set it to an empty string
-                                  onChange(value === "" ? NaN : Number(value));
+                                  onChange(isNaN(value) ? NaN : value);
                                 }}
                                 {...field}
                                 InputProps={{
@@ -650,6 +659,7 @@ const TokenInfoContent = (_props: Props) => {
                                     </InputAdornment>
                                   ),
                                 }}
+                                inputProps={{ max }}
                               />
                             )}
                           />
