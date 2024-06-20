@@ -83,7 +83,6 @@ const FormRoot = styled(Paper)(() => ({
   // color: "white",
 }));
 
-const min = 0.001;
 const max = 10;
 
 const TokenInfoContent = (_props: Props) => {
