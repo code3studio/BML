@@ -399,7 +399,7 @@ const TokenInfoContent = (_props: Props) => {
 
     fetchData(); // Call the async function immediately
   }, [
-    data?.logs[0].address,
+    data?.logs[0]?.address,
     isConfirmed,
     type,
     address,
