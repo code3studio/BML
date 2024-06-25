@@ -180,7 +180,7 @@ const TokenManageDialog = ({
         abi: custom_liquidity_abi,
         functionName: "addLiquidity",
         args: [parseEther(tokenAmount.toString())],
-        value: BigInt(ethAmount * Math.pow(10, 18)),
+        value: BigInt(Math.round(ethAmount * Math.pow(10, 18))),
       });
       //@ts-ignore
       const tr = await waitForTransactionReceipt(constConfig, {
