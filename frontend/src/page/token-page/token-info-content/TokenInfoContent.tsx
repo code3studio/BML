@@ -574,7 +574,7 @@ const TokenInfoContent = (_props: Props) => {
                       }
                       label="Team Allocation"
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                       control={
                         <Checkbox
                           checked={liq}
@@ -582,7 +582,7 @@ const TokenInfoContent = (_props: Props) => {
                         />
                       }
                       label="Liquidity feature"
-                    />
+                    /> */}
                   </FormGroup>
                   {/* {burn ? ( */}
                   <Collapse in={burn}>
