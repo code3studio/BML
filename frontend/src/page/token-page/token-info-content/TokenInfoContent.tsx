@@ -592,8 +592,8 @@ const TokenInfoContent = (_props: Props) => {
                           <Typography>Burn:</Typography>
                           <Typography variant="caption">
                             This function enables the creator to burn tokens and
-                            set a burn percentage on DEX trades. ( Max
-                            percentage 10%)
+                            set a burn percentage on DEX trades and on chain
+                            transfers. (max:10%)
                           </Typography>
                         </Grid>
                         <Grid item xs="auto">
@@ -604,11 +604,16 @@ const TokenInfoContent = (_props: Props) => {
                               <PercentageText
                                 type="number"
                                 onChange={(e) => {
-                                  let value = Number(e.target.value);
-                                  if (value > max) value = max;
-
-                                  // If the input is empty, set it to an empty string
-                                  onChange(isNaN(value) ? NaN : value);
+                                  let value = e.target.value.trim();
+                                  if (value === "") {
+                                    onChange("");
+                                  } else {
+                                    let number_value: number = Number(value);
+                                    if (number_value > max) number_value = max;
+                                    onChange(
+                                      isNaN(number_value) ? NaN : number_value
+                                    );
+                                  }
                                 }}
                                 {...field}
                                 InputProps={{
@@ -646,10 +651,16 @@ const TokenInfoContent = (_props: Props) => {
                               <PercentageText
                                 type="number"
                                 onChange={(e) => {
-                                  let value = Number(e.target.value);
-                                  if (value > max) value = max;
-                                  // If the input is empty, set it to an empty string
-                                  onChange(isNaN(value) ? NaN : value);
+                                  let value = e.target.value.trim();
+                                  if (value === "") {
+                                    onChange("");
+                                  } else {
+                                    let number_value: number = Number(value);
+                                    if (number_value > max) number_value = max;
+                                    onChange(
+                                      isNaN(number_value) ? NaN : number_value
+                                    );
+                                  }
                                 }}
                                 {...field}
                                 InputProps={{
