@@ -591,8 +591,9 @@ const TokenInfoContent = (_props: Props) => {
                         <Grid item xs>
                           <Typography>Burn:</Typography>
                           <Typography variant="caption">
-                            A percentage of tokens will be sent to the burn
-                            address for each on-chain transfer ( max:10)
+                            This function enables the creator to burn tokens and
+                            set a burn percentage on DEX trades. ( Max
+                            percentage 10%)
                           </Typography>
                         </Grid>
                         <Grid item xs="auto">
@@ -632,9 +633,9 @@ const TokenInfoContent = (_props: Props) => {
                         <Grid item xs>
                           <Typography>Creator Commissions:</Typography>
                           <Typography variant="caption">
-                            A portion of tokens will be sent to the creator's
-                            address for each on-chain transfer, including swaps
-                            on decentralized exchanges (DEXs).( max:10 %)
+                            Specify the percentage sent to creator commissions
+                            wallet on any transfer function, including DEX
+                            swaps. (max:10%)
                           </Typography>
                         </Grid>
                         <Grid item xs="auto">
